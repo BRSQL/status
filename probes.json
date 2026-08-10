@@ -1,0 +1,9 @@
+{
+  "_doc": "Sondas da automação (.github/workflows/probe.yml). Cada alvo é sondado DE FORA (runner do GitHub) — mede o que o cliente experimenta, sem depender da infra da Yvera. Critério: fora = timeout, erro de conexão ou HTTP >= 500. Qualquer resposta < 500 conta como no ar (403 da WAF do Cloudflare para IP estrangeiro é 'no ar' — o edge respondeu). Componente com \"manual\": true no status.json nunca é tocado pela sonda.",
+  "targets": [
+    { "component": "painel", "url": "https://app.brsql.com.br/" },
+    { "component": "api", "url": "https://app.brsql.com.br/api/users/login", "_doc": "GET numa rota POST-only: 405 prova nginx→api vivos, sem tocar autenticação" },
+    { "component": "site", "url": "https://brsql.com.br/" },
+    { "component": "marketplace", "url": "https://pedidos.brsql.com.br/" }
+  ]
+}

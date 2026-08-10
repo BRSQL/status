@@ -43,9 +43,19 @@ histórico (a página mostra os que estiverem no JSON; pode o último trimestre)
 - Não crie componente por micro-serviço: a página fala com dono de
   restaurante, não com SRE.
 
-## Automação (futuro)
+## Automação (desde 10/08/2026)
 
-O vmalert da plataforma pode abrir/fechar incidentes daqui via
-`repository_dispatch` + GitHub Action que edita o `status.json`. Até lá, a
-atualização é manual — e uma página manual honesta vale mais que uma
-automática que ninguém confere.
+`.github/workflows/probe.yml` sonda os endpoints públicos **a cada 5 min, de
+fora da infra** (runner do GitHub — mede o que o cliente experimenta):
+
+- alvos em `probes.json`; critério: fora = timeout/erro de conexão/HTTP ≥ 500,
+  confirmado em DUAS tentativas. 4xx conta como no ar (403 da WAF p/ IP
+  estrangeiro inclusive).
+- queda → componente vira `outage` + incidente automático (`"auto": true`);
+  normalização fecha o MESMO incidente com update. Sem mudança, sem commit.
+- componente com `"manual": true` (Fiscal/SEFAZ, Pagamentos) é do OPERADOR —
+  a sonda nunca o toca. Incidente escrito à mão também nunca é tocado.
+- rodar agora: aba Actions → probe → Run workflow.
+
+A edição manual do incidente continua igual (seção acima) — a sonda cobre o
+"caiu/voltou"; o CONTEXTO (causa, previsão) continua sendo trabalho de gente.

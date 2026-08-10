@@ -1,0 +1,50 @@
+# Sonda externa da status page — a cada 5 min, de FORA da infra.
+#
+# O runner do GitHub sonda os endpoints públicos e edita o status.json quando
+# o estado observado muda (componente + incidente automático). Sem mudança,
+# sem commit — o histórico do repo é o histórico de INCIDENTES, não de ticks.
+#
+# Fiscal/SEFAZ e Pagamentos são manuais ("manual": true no status.json) — a
+# sonda nunca os toca. Incidente escrito à mão também nunca é tocado.
+name: probe
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: probe
+  cancel-in-progress: false
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Sondar e atualizar status.json
+        id: sonda
+        run: |
+          set +e
+          python3 scripts/probe.py
+          rc=$?
+          set -e
+          if [ "$rc" = "78" ]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          elif [ "$rc" != "0" ]; then
+            exit "$rc"
+          fi
+      - name: Commit da mudança de estado
+        if: steps.sonda.outputs.changed == 'true'
+        run: |
+          git config user.name "yvera-status-probe"
+          git config user.email "suporte@brsql.com.br"
+          git add status.json
+          git commit -m "probe: mudança de estado detectada pela sonda externa"
+          # Corrida com um commit manual no meio do run: rebase e tenta de
+          # novo uma vez — se ainda falhar, o PRÓXIMO tick (5 min) converge.
+          git push || (git pull --rebase && git push) || true

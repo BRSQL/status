@@ -17,13 +17,15 @@
       "id": "fiscal",
       "name": "Emissão fiscal — SEFAZ",
       "status": "operational",
-      "note": "Instabilidade da SEFAZ estadual aparece aqui: não é defeito do sistema, e o modo de contingência segue emitindo."
+      "note": "Instabilidade da SEFAZ estadual aparece aqui: não é defeito do sistema, e o modo de contingência segue emitindo.",
+      "manual": true
     },
     {
       "id": "pagamentos",
       "name": "Pagamentos online (PIX e cartão)",
       "status": "operational",
-      "note": ""
+      "note": "",
+      "manual": true
     },
     {
       "id": "marketplace",
