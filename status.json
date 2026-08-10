@@ -1,0 +1,42 @@
+{
+  "updated_at": "2026-08-09T21:30:00-03:00",
+  "components": [
+    {
+      "id": "painel",
+      "name": "Painel de gestão (app.brsql.com.br)",
+      "status": "operational",
+      "note": ""
+    },
+    {
+      "id": "api",
+      "name": "API e sincronização do aplicativo (maquininha/tablet)",
+      "status": "operational",
+      "note": ""
+    },
+    {
+      "id": "fiscal",
+      "name": "Emissão fiscal — SEFAZ",
+      "status": "operational",
+      "note": "Instabilidade da SEFAZ estadual aparece aqui: não é defeito do sistema, e o modo de contingência segue emitindo."
+    },
+    {
+      "id": "pagamentos",
+      "name": "Pagamentos online (PIX e cartão)",
+      "status": "operational",
+      "note": ""
+    },
+    {
+      "id": "marketplace",
+      "name": "Pedidos online e delivery (Peça no Ponto)",
+      "status": "operational",
+      "note": ""
+    },
+    {
+      "id": "site",
+      "name": "Site e assinatura (brsql.com.br)",
+      "status": "operational",
+      "note": ""
+    }
+  ],
+  "incidents": []
+}

@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Status — Yvera</title>
+<meta name="description" content="Status em tempo real da plataforma Yvera: painel, aplicativo, emissão fiscal, pagamentos e pedidos online.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='42' fill='%2322c55e'/%3E%3C/svg%3E">
+<style>
+  :root {
+    --bg: #fafaf9; --surface: #ffffff; --border: #e7e5e4;
+    --text: #1c1917; --muted: #78716c;
+    --ok: #16a34a; --ok-soft: #f0fdf4; --ok-border: #bbf7d0;
+    --warn: #d97706; --warn-soft: #fffbeb; --warn-border: #fde68a;
+    --down: #dc2626; --down-soft: #fef2f2; --down-border: #fecaca;
+    --maint: #2563eb; --maint-soft: #eff6ff; --maint-border: #bfdbfe;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0c0a09; --surface: #1c1917; --border: #292524;
+      --text: #fafaf9; --muted: #a8a29e;
+      --ok-soft: #052e16; --ok-border: #14532d;
+      --warn-soft: #451a03; --warn-border: #78350f;
+      --down-soft: #450a0a; --down-border: #7f1d1d;
+      --maint-soft: #172554; --maint-border: #1e3a8a;
+    }
+  }
+  * { box-sizing: border-box; margin: 0; }
+  body {
+    font: 15px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg); color: var(--text);
+    padding: 0 16px 48px;
+  }
+  main { max-width: 720px; margin: 0 auto; }
+  header { padding: 36px 0 20px; display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  header h1 { font-size: 21px; font-weight: 650; letter-spacing: -0.01em; }
+  header h1 span { color: var(--muted); font-weight: 400; }
+  .stamp { color: var(--muted); font-size: 12.5px; }
+  .banner {
+    border-radius: 10px; padding: 14px 18px; font-weight: 600; font-size: 16px;
+    display: flex; align-items: center; gap: 10px;
+    border: 1px solid var(--ok-border); background: var(--ok-soft);
+  }
+  .banner.warn { border-color: var(--warn-border); background: var(--warn-soft); }
+  .banner.down { border-color: var(--down-border); background: var(--down-soft); }
+  .dot { width: 11px; height: 11px; border-radius: 50%; background: var(--ok); flex: none; }
+  .warn .dot { background: var(--warn); } .down .dot { background: var(--down); }
+  section { margin-top: 28px; }
+  h2 { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin-bottom: 10px; }
+  .components { border: 1px solid var(--border); border-radius: 10px; background: var(--surface); overflow: hidden; }
+  .component { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 13px 16px; border-top: 1px solid var(--border); }
+  .component:first-child { border-top: 0; }
+  .component .name { font-weight: 500; }
+  .component .note { color: var(--muted); font-size: 12.5px; margin-top: 2px; }
+  .state { font-size: 12.5px; font-weight: 600; white-space: nowrap; padding: 3px 10px; border-radius: 999px; border: 1px solid var(--ok-border); background: var(--ok-soft); color: var(--ok); }
+  .state.degraded { border-color: var(--warn-border); background: var(--warn-soft); color: var(--warn); }
+  .state.outage { border-color: var(--down-border); background: var(--down-soft); color: var(--down); }
+  .state.maintenance { border-color: var(--maint-border); background: var(--maint-soft); color: var(--maint); }
+  .incident { border: 1px solid var(--border); border-radius: 10px; background: var(--surface); padding: 14px 16px; margin-bottom: 10px; }
+  .incident h3 { font-size: 15px; margin-bottom: 2px; }
+  .incident .meta { color: var(--muted); font-size: 12.5px; margin-bottom: 8px; }
+  .incident .update { border-left: 2px solid var(--border); padding: 2px 0 2px 12px; margin: 8px 0; font-size: 13.5px; }
+  .incident .update b { font-weight: 600; }
+  .empty { color: var(--muted); font-size: 13.5px; border: 1px dashed var(--border); border-radius: 10px; padding: 16px; text-align: center; }
+  footer { margin-top: 36px; color: var(--muted); font-size: 12.5px; line-height: 1.7; }
+  footer a { color: inherit; }
+  noscript { display: block; margin-top: 20px; color: var(--muted); }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Yvera <span>· status da plataforma</span></h1>
+    <span class="stamp" id="stamp"></span>
+  </header>
+
+  <div class="banner" id="banner"><span class="dot"></span><span id="banner-text">Consultando…</span></div>
+
+  <section>
+    <h2>Serviços</h2>
+    <div class="components" id="components"></div>
+  </section>
+
+  <section>
+    <h2>Incidentes recentes</h2>
+    <div id="incidents"></div>
+  </section>
+
+  <footer>
+    Esta página é hospedada <b>fora</b> da infraestrutura da Yvera de propósito — ela continua no ar quando a plataforma não está.<br>
+    Problema que não aparece aqui? Fale com o suporte: <a href="mailto:suporte@brsql.com.br">suporte@brsql.com.br</a> — ou pelo chat de ajuda do painel, que encaminha a conversa para uma pessoa da equipe.
+  </footer>
+  <noscript>Ative o JavaScript para ver o estado ao vivo — ou consulte <a href="status.json">status.json</a>.</noscript>
+</main>
+<script>
+const RÓTULO = {
+  operational: 'Operacional',
+  degraded: 'Degradado',
+  outage: 'Fora do ar',
+  maintenance: 'Manutenção'
+};
+const CLASSE = { operational: '', degraded: 'degraded', outage: 'outage', maintenance: 'maintenance' };
+
+function esc(s) { const d = document.createElement('div'); d.textContent = s ?? ''; return d.innerHTML; }
+
+function dataPt(iso) {
+  try {
+    return new Date(iso).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+  } catch { return iso; }
+}
+
+fetch('status.json', { cache: 'no-cache' })
+  .then((r) => r.json())
+  .then((d) => {
+    document.getElementById('stamp').textContent = 'Atualizado ' + dataPt(d.updated_at);
+
+    const estados = d.components.map((c) => c.status);
+    const banner = document.getElementById('banner');
+    const txt = document.getElementById('banner-text');
+    if (estados.includes('outage')) { banner.className = 'banner down'; txt.textContent = 'Interrupção em andamento — detalhes abaixo.'; }
+    else if (estados.includes('degraded') || estados.includes('maintenance')) { banner.className = 'banner warn'; txt.textContent = 'Operando com degradação em parte dos serviços.'; }
+    else { banner.className = 'banner'; txt.textContent = 'Todos os serviços operando normalmente.'; }
+
+    document.getElementById('components').innerHTML = d.components.map((c) => `
+      <div class="component">
+        <div>
+          <div class="name">${esc(c.name)}</div>
+          ${c.note ? `<div class="note">${esc(c.note)}</div>` : ''}
+        </div>
+        <span class="state ${CLASSE[c.status] ?? ''}">${RÓTULO[c.status] ?? esc(c.status)}</span>
+      </div>`).join('');
+
+    const inc = document.getElementById('incidents');
+    if (!d.incidents || d.incidents.length === 0) {
+      inc.innerHTML = '<div class="empty">Nenhum incidente nos últimos 90 dias.</div>';
+    } else {
+      inc.innerHTML = d.incidents.map((i) => `
+        <div class="incident">
+          <h3>${esc(i.title)}</h3>
+          <div class="meta">${dataPt(i.date)} · ${esc(RÓTULO[i.status] ?? i.status)}</div>
+          ${(i.updates ?? []).map((u) => `<div class="update"><b>${dataPt(u.time)}</b> — ${esc(u.text)}</div>`).join('')}
+        </div>`).join('');
+    }
+  })
+  .catch(() => {
+    document.getElementById('banner-text').textContent = 'Não consegui carregar o estado — tente recarregar.';
+  });
+</script>
+</body>
+</html>
