@@ -8,11 +8,10 @@ isso para saber que precisa commitar. Sem mudança, sai 0 e NADA é commitado
 (uma status page que se commita a cada 5 min vira ruído de histórico).
 
 Regras deliberadas:
-- "Fora" = timeout, erro de conexão ou HTTP >= 500, confirmado em DUAS
-  tentativas espaçadas (uma piscada de rede não abre incidente).
-- Qualquer resposta < 500 é "no ar" — inclusive 403: a WAF do Cloudflare
-  barra IP estrangeiro em alguns caminhos, e o runner do GitHub é
-  estrangeiro. O que se mede aqui é o edge+origem respondendo.
+- "Fora" = timeout, erro de conexão ou HTTP fora dos `accepted_statuses` do
+  alvo, confirmado em DUAS tentativas espaçadas.
+- 403 é aceito explicitamente: a WAF pode barrar o IP estrangeiro do runner.
+  404 não é saudável — uma rota removida não pode parecer disponível.
 - Componente com "manual": true é do OPERADOR — a sonda nunca o toca (é o
   caso do Fiscal/SEFAZ e Pagamentos, que não são sondáveis por HTTP).
 - Incidente aberto pela sonda leva `"auto": true` e o id do componente; a
@@ -40,27 +39,33 @@ def agora() -> str:
     return datetime.now(TZ).isoformat(timespec="seconds")
 
 
-def alvo_no_ar(url: str) -> bool:
+def alvo_saudavel(url: str, accepted_statuses: list[int]) -> bool:
+    if not accepted_statuses or any(
+        not isinstance(status, int) or not 100 <= status <= 599
+        for status in accepted_statuses
+    ):
+        raise ValueError(f"accepted_statuses inválido para {url}")
+
     req = urllib.request.Request(url, method="GET", headers={
         # Identificação honesta; também evita cair em regra anti-bot genérica.
         "User-Agent": "YveraStatusProbe/1 (+https://status.brsql.com.br)"
     })
     try:
         with urllib.request.urlopen(req, timeout=TIMEOUT_S) as resp:
-            return resp.status < 500
+            status = resp.status
     except urllib.error.HTTPError as e:
-        # 4xx (incl. 403 da WAF, 405 de rota POST-only) = respondeu = no ar.
-        return e.code < 500
+        status = e.code
     except Exception:
         return False
+    return status in accepted_statuses
 
 
-def sondar(url: str) -> bool:
+def sondar(url: str, accepted_statuses: list[int]) -> bool:
     """Duas tentativas: só é 'fora' se AMBAS falharem."""
-    if alvo_no_ar(url):
+    if alvo_saudavel(url, accepted_statuses):
         return True
     time.sleep(RETRY_GAP_S)
-    return alvo_no_ar(url)
+    return alvo_saudavel(url, accepted_statuses)
 
 
 def main() -> int:
@@ -73,7 +78,7 @@ def main() -> int:
         comp = componentes.get(alvo["component"])
         if comp is None or comp.get("manual"):
             continue
-        no_ar = sondar(alvo["url"])
+        no_ar = sondar(alvo["url"], alvo.get("accepted_statuses", []))
         publicado_no_ar = comp["status"] != "outage"
 
         if no_ar and not publicado_no_ar:
