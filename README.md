@@ -56,9 +56,9 @@ cliente experimenta). O cron hospedado é best-effort, não um SLO: em 14–16/0
 houve intervalos de 15–94 min entre execuções. Para detecção com prazo garantido,
 esta sonda precisa de um scheduler/monitor externo independente do Actions:
 
-- alvos em `probes.json`; critério: fora = timeout/erro de conexão/HTTP ≥ 500,
-  confirmado em DUAS tentativas. 4xx conta como no ar (403 da WAF p/ IP
-  estrangeiro inclusive).
+- alvos em `probes.json`; cada um declara seus códigos HTTP aceitos, e qualquer
+  outro código/timeout/erro de conexão é confirmado em DUAS tentativas. 403 é
+  aceito por causa da WAF para IP estrangeiro; 404 não passa.
 - queda → componente vira `outage` + incidente automático (`"auto": true`);
   normalização fecha o MESMO incidente com update. Sem mudança, sem commit.
 - componente com `"manual": true` (Fiscal/SEFAZ, Pagamentos) é do OPERADOR —
