@@ -25,7 +25,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 8
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - name: Sondar e atualizar status.json
         id: sonda
         run: |
@@ -46,5 +46,9 @@ jobs:
           git add status.json
           git commit -m "probe: mudança de estado detectada pela sonda externa"
           # Corrida com um commit manual no meio do run: rebase e tenta de
-          # novo uma vez — se ainda falhar, o PRÓXIMO tick (5 min) converge.
-          git push || (git pull --rebase && git push) || true
+          # novo uma vez. A segunda falha precisa deixar o workflow vermelho;
+          # escondê-la faria a página continuar velha com a sonda "verde".
+          if ! git push; then
+            git pull --rebase
+            git push
+          fi
