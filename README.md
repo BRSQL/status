@@ -11,6 +11,11 @@ esta página continua no ar.
 - `status.json` — **a fonte da verdade**. A página lê este arquivo no load.
 - `CNAME` — domínio `status.brsql.com.br` (CNAME no Cloudflare → GitHub Pages).
 
+O arquivo `CNAME` não substitui a configuração do Pages: em **Settings → Pages**,
+o custom domain precisa estar confirmado e **Enforce HTTPS** ativo. Verifique após
+qualquer troca de DNS com `curl -I https://status.brsql.com.br/`; certificado
+`*.github.io` indica que o certificado do domínio ainda não foi emitido/associado.
+
 ## Como atualizar durante um incidente
 
 Edite `status.json` e commite na `main` (o Pages publica em ~1 min):
@@ -45,8 +50,11 @@ histórico (a página mostra os que estiverem no JSON; pode o último trimestre)
 
 ## Automação (desde 10/08/2026)
 
-`.github/workflows/probe.yml` sonda os endpoints públicos **a cada 5 min, de
-fora da infra** (runner do GitHub — mede o que o cliente experimenta):
+`.github/workflows/probe.yml` pede ao GitHub Actions uma sonda dos endpoints
+públicos **a cada 5 min, de fora da infra** (runner do GitHub — mede o que o
+cliente experimenta). O cron hospedado é best-effort, não um SLO: em 14–16/08
+houve intervalos de 15–94 min entre execuções. Para detecção com prazo garantido,
+esta sonda precisa de um scheduler/monitor externo independente do Actions:
 
 - alvos em `probes.json`; critério: fora = timeout/erro de conexão/HTTP ≥ 500,
   confirmado em DUAS tentativas. 4xx conta como no ar (403 da WAF p/ IP

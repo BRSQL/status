@@ -3,7 +3,7 @@
   "targets": [
     { "component": "painel", "url": "https://app.brsql.com.br/" },
     { "component": "api", "url": "https://app.brsql.com.br/api/users/login", "_doc": "GET numa rota POST-only: 405 prova nginx→api vivos, sem tocar autenticação" },
-    { "component": "site", "url": "https://brsql.com.br/" },
-    { "component": "marketplace", "url": "https://pedidos.brsql.com.br/" }
+    { "component": "site", "url": "https://yvera.app.br/", "_doc": "host canônico desde 2026-08-14; brsql.com.br continua legado em paralelo" },
+    { "component": "marketplace", "url": "https://pedidos.yvera.app.br/", "_doc": "host canônico desde 2026-08-15; pedidos.brsql.com.br continua legado em paralelo" }
   ]
 }
