@@ -112,7 +112,8 @@ function dataPt(iso) {
 fetch('status.json', { cache: 'no-cache' })
   .then((r) => r.json())
   .then((d) => {
-    document.getElementById('stamp').textContent = 'Atualizado ' + dataPt(d.updated_at);
+    // updated_at só muda quando o estado muda (as sondas não commitam sem mudança).
+    document.getElementById('stamp').textContent = 'Última mudança: ' + dataPt(d.updated_at);
 
     const estados = d.components.map((c) => c.status);
     const banner = document.getElementById('banner');
