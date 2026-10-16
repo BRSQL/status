@@ -17,8 +17,7 @@
       "id": "fiscal",
       "name": "Emissão fiscal — SEFAZ",
       "status": "operational",
-      "note": "Instabilidade da SEFAZ estadual aparece aqui: não é defeito do sistema, e o modo de contingência segue emitindo.",
-      "manual": true
+      "note": "Acompanha o portal público de disponibilidade da SEFAZ (autorizador SVRS). Instabilidade aqui é da SEFAZ, não do sistema: o modo de contingência segue emitindo."
     },
     {
       "id": "pagamentos",

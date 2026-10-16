@@ -238,6 +238,10 @@ class PublicadorFalso:
         self.estado = estado
         self.leituras = 0
         self.publicacoes = []
+        self.batimentos = []
+
+    def publicar_batimento(self, conteudo):
+        self.batimentos.append(json.loads(conteudo))
 
     def ler_publicado(self):
         self.leituras += 1
@@ -259,11 +263,11 @@ class RodadaTests(unittest.TestCase):
     ]
     CONTROLES = ["https://controle.test/"]
 
-    def montar(self, respostas):
+    def montar(self, respostas, **extra):
         """respostas: função url -> código (None = sem resposta)."""
         pub = PublicadorFalso(estado_base())
         f = feeder.Feeder(self.ALVOS, self.CONTROLES, pub,
-                          medir=lambda url, timeout: medida(respostas(url), url=url))
+                          medir=lambda url, timeout: medida(respostas(url), url=url), **extra)
         self.addCleanup(f.pool.shutdown)
         return f, pub
 
@@ -361,6 +365,162 @@ class RodadaTests(unittest.TestCase):
 # --- feeder.py: publicação git real (repositório local) -------------------------------
 
 @unittest.skipUnless(shutil.which("git"), "git ausente")
+# --- Fiscal/SEFAZ: portal público ---------------------------------------------
+
+def portal_sefaz(svrs=("verde", "verde", "verde"), sp=("verde", "verde", "verde")):
+    """HTML mínimo no formato do portal: cabeçalho com sufixo de versão, uma
+    imagem bola_<cor>_P.png por serviço, SP e SVRS."""
+    def linha(nome, cores):
+        a, r, st = cores
+        return (f"<tr><td>{nome}</td><td><img src='imagens/bola_{a}_P.png'/></td>"
+                f"<td><img src='imagens/bola_{r}_P.png'/></td><td><img src='imagens/bola_verde_P.png'/></td>"
+                f"<td><img src='imagens/bola_verde_P.png'/></td><td><img src='imagens/bola_{st}_P.png'/></td>"
+                f"<td>-</td><td><img src='imagens/bola_verde_P.png'/></td><td><img src='imagens/bola_verde_P.png'/></td></tr>")
+    return ("<table><tr><th>Autorizador</th><th>Autoriza&#231;&#227;o4</th><th>Retorno Autoriza&#231;&#227;o4</th>"
+            "<th>Inutiliza&#231;&#227;o4</th><th>Consulta Protocolo4</th><th>Status Servi&#231;o4</th>"
+            "<th>Tempo M&#233;dio</th><th>Consulta Cadastro4</th><th>Recep&#231;&#227;o Evento4</th></tr>"
+            + linha("SP", sp) + linha("SVRS", svrs) + "</table>"
+            "<tr><td><img src='imagens/bola_vermelho_G.png'/></td><td>Vermelho: legenda</td></tr>")
+
+
+SERVICOS = ["Autorização", "Retorno Autorização", "Status Serviço"]
+
+
+class SefazPortalTests(unittest.TestCase):
+    def test_all_green_is_operational(self):
+        self.assertEqual(probe.interpretar_portal_sefaz(portal_sefaz(), "SVRS", SERVICOS), "operational")
+
+    def test_worst_color_among_requested_services_wins(self):
+        self.assertEqual(probe.interpretar_portal_sefaz(
+            portal_sefaz(svrs=("verde", "amarela", "verde")), "SVRS", SERVICOS), "degraded")
+        self.assertEqual(probe.interpretar_portal_sefaz(
+            portal_sefaz(svrs=("amarela", "vermelho", "verde")), "SVRS", SERVICOS), "outage")
+
+    def test_other_authorizer_and_unrequested_services_are_ignored(self):
+        pagina = portal_sefaz(sp=("vermelho", "vermelho", "vermelho"))
+        self.assertEqual(probe.interpretar_portal_sefaz(pagina, "SVRS", SERVICOS), "operational")
+        self.assertEqual(probe.interpretar_portal_sefaz(
+            portal_sefaz(svrs=("verde", "verde", "vermelho")), "SVRS", ["Autorização"]), "operational")
+
+    def test_unknown_layout_or_authorizer_is_none(self):
+        self.assertIsNone(probe.interpretar_portal_sefaz(portal_sefaz(), "SVAN", SERVICOS))
+        self.assertIsNone(probe.interpretar_portal_sefaz("<html>manutenção</html>", "SVRS", SERVICOS))
+
+    @patch("probe.urllib.request.urlopen")
+    def test_portal_unreachable_is_none_not_a_state(self, urlopen):
+        urlopen.side_effect = urllib.error.URLError(TimeoutError())
+        self.assertIsNone(probe.ler_portal_sefaz("SVRS", SERVICOS))
+
+    def test_versioned_probes_json_declares_svrs_target(self):
+        dados = json.loads((AQUI.parent / "probes.json").read_text(encoding="utf-8"))
+        sefaz = [t for t in dados["targets"] if t.get("kind") == probe.KIND_SEFAZ]
+        self.assertEqual([(t["component"], t["autorizador"]) for t in sefaz], [("fiscal", "SVRS")])
+        self.assertTrue(set(sefaz[0]["services"]) <= {
+            "Autorização", "Retorno Autorização", "Inutilização", "Consulta Protocolo",
+            "Status Serviço", "Consulta Cadastro", "Recepção Evento"})
+        publicado = json.loads((AQUI.parent / "status.json").read_text(encoding="utf-8"))
+        self.assertFalse(probe.componentes_por_id(publicado)["fiscal"].get("manual"),
+                         "fiscal é sondado pelo portal da SEFAZ; não pode ser manual")
+
+
+class SefazEstadoTests(unittest.TestCase):
+    def setUp(self):
+        self.estado = estado_base()
+        self.comp = probe.componentes_por_id(self.estado)["fiscal"]
+        self.comp.pop("manual")
+
+    def aplicar(self, observado):
+        return probe.aplicar_sefaz(self.estado, self.comp, observado, "SVRS")
+
+    def test_yellow_opens_degraded_incident_blaming_sefaz(self):
+        self.assertEqual(self.aplicar("degraded"), ["fiscal degraded (SEFAZ SVRS)"])
+        self.assertEqual(self.comp["status"], "degraded")
+        inc = self.estado["incidents"][0]
+        self.assertTrue(inc["auto"])
+        self.assertEqual(inc["status"], "degraded")
+        self.assertIn("SEFAZ", inc["title"])
+        self.assertIn("não do sistema", inc["updates"][0]["text"])
+        self.assertIn("contingência", inc["updates"][0]["text"])
+
+    def test_red_escalates_same_incident_and_green_closes_it(self):
+        self.aplicar("degraded")
+        self.assertEqual(self.aplicar("outage"), ["fiscal degraded -> outage (SEFAZ SVRS)"])
+        self.assertEqual(len(self.estado["incidents"]), 1)
+        self.assertEqual(self.estado["incidents"][0]["status"], "outage")
+        self.assertEqual(self.aplicar("degraded"), ["fiscal outage -> degraded (SEFAZ SVRS)"])
+        self.assertEqual(self.aplicar("operational"), ["fiscal normalizado (SEFAZ SVRS)"])
+        self.assertTrue(self.estado["incidents"][0]["resolved"])
+        self.assertEqual(self.comp["status"], "operational")
+        self.assertEqual(len(self.estado["incidents"][0]["updates"]), 4)
+
+    def test_no_change_and_unreadable_portal_are_noops(self):
+        self.assertEqual(self.aplicar("operational"), [])
+        self.assertEqual(self.aplicar(None), [])
+        self.assertEqual(self.estado["incidents"], [])
+
+    def test_operator_state_is_respected(self):
+        self.comp["status"] = "maintenance"
+        self.assertEqual(self.aplicar("outage"), [])
+        self.comp["status"] = "degraded"  # declarado à mão, sem incidente automático
+        self.assertEqual(self.aplicar("outage"), [])
+        self.assertEqual(self.aplicar("operational"), [])
+        self.assertEqual(self.comp["status"], "degraded")
+        self.comp["manual"] = True
+        self.comp["status"] = "operational"
+        self.assertEqual(self.aplicar("outage"), [])
+
+
+class SefazNoFeederTests(RodadaTests):
+    SEFAZ = [feeder.AlvoSefaz("fiscal", "SVRS", tuple(SERVICOS))]
+
+    def montar_sefaz(self, leituras):
+        relogio = {"t": 0.0}
+        chamadas = []
+
+        def ler(autorizador, servicos):
+            chamadas.append(autorizador)
+            return leituras[min(len(chamadas) - 1, len(leituras) - 1)]
+
+        f, pub = self.montar(lambda u: 405 if "api" in u else 200,
+                             sefaz=self.SEFAZ, ler_sefaz=ler, relogio=lambda: relogio["t"])
+        probe.componentes_por_id(pub.estado)["fiscal"].pop("manual")
+        return f, pub, relogio, chamadas
+
+    def test_portal_is_read_every_five_minutes_not_every_round(self):
+        f, pub, relogio, chamadas = self.montar_sefaz(["operational"])
+        for i in range(21):
+            relogio["t"] = i * 30
+            f.rodada()
+        self.assertEqual(len(chamadas), 3)  # t=0, 300, 600
+
+    def test_sefaz_state_is_published_and_closed(self):
+        f, pub, relogio, chamadas = self.montar_sefaz(["degraded", "operational"])
+        self.assertEqual(f.rodada(), ["fiscal degraded (SEFAZ SVRS)"])
+        self.assertEqual(self.status(pub, "fiscal"), "degraded")
+        relogio["t"] = 300
+        self.assertEqual(f.rodada(), ["fiscal normalizado (SEFAZ SVRS)"])
+        self.assertEqual(self.status(pub, "fiscal"), "operational")
+        self.assertEqual(len(pub.publicacoes), 2)
+
+    def test_heartbeat_every_five_minutes_with_target_health_and_sefaz(self):
+        f, pub, relogio, chamadas = self.montar_sefaz(["operational"])
+        for i in range(21):
+            relogio["t"] = i * 30
+            f.rodada()
+        self.assertEqual(len(pub.batimentos), 3)
+        b = pub.batimentos[-1]
+        self.assertEqual(b["targets"], {"api": "ok", "painel": "ok"})
+        self.assertEqual(b["sefaz"], {"fiscal": "operational"})
+        self.assertEqual(b["interval_s"], feeder.INTERVALO_S)
+        self.assertIn("-03:00", b["checked_at"])
+
+    def test_no_heartbeat_when_vm_network_is_down(self):
+        f, pub = self.montar(lambda u: None)
+        with self.assertLogs("feeder", level="WARNING"):
+            f.rodada()
+        self.assertEqual(pub.batimentos, [])
+
+
 class PublicadorGitTests(unittest.TestCase):
     def git(self, *args, cwd):
         return subprocess.run(["git", "-c", "user.name=t", "-c", "user.email=t@t", *args],
@@ -421,6 +581,16 @@ class PublicadorGitTests(unittest.TestCase):
         self.assertEqual(chamadas["n"], 2)
         self.assertEqual(self.remoto("show", "main:index.html"), "<p>editado</p>")
         self.assertEqual(self.remoto("log", "-1", "--format=%s", "main~1"), "edição manual")
+
+    def test_heartbeat_is_a_single_forced_commit_on_its_own_branch(self):
+        main_antes = self.remoto("rev-parse", "main")
+        self.pub.publicar_batimento('{"checked_at": "1"}\n')
+        self.pub.publicar_batimento('{"checked_at": "2"}\n')
+        self.assertEqual(self.remoto("rev-parse", "main"), main_antes)
+        self.assertEqual(self.remoto("rev-list", "--count", "heartbeat"), "1")
+        self.assertEqual(self.remoto("show", "heartbeat:heartbeat.json"), '{"checked_at": "2"}')
+        self.assertEqual(self.remoto("ls-tree", "--name-only", "heartbeat"), "heartbeat.json")
+        self.assertEqual(self.git("status", "--porcelain", cwd=self.clone), "")
 
     def test_nothing_is_pushed_when_origin_already_matches(self):
         antes = self.remoto("rev-parse", "main")

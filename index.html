@@ -36,6 +36,8 @@
   header h1 { font-size: 21px; font-weight: 650; letter-spacing: -0.01em; }
   header h1 span { color: var(--muted); font-weight: 400; }
   .stamp { color: var(--muted); font-size: 12.5px; }
+  .checked { color: var(--muted); font-size: 12.5px; margin-top: 8px; }
+  .checked.stale { color: #b45309; }
   .banner {
     border-radius: 10px; padding: 14px 18px; font-weight: 600; font-size: 16px;
     display: flex; align-items: center; gap: 10px;
@@ -75,6 +77,7 @@
   </header>
 
   <div class="banner" id="banner"><span class="dot"></span><span id="banner-text">Consultando…</span></div>
+  <div class="checked" id="checked"></div>
 
   <section>
     <h2>Serviços</h2>
@@ -109,11 +112,44 @@ function dataPt(iso) {
   } catch { return iso; }
 }
 
+// Quando a plataforma foi verificada pela última vez: a sonda contínua grava
+// heartbeat.json no ramo `heartbeat` a cada 5 min (um commit só, sem sujar a
+// main). Se faltar, cai para a última execução da sonda do GitHub Actions.
+const BATIMENTO = 'https://raw.githubusercontent.com/BRSQL/status/heartbeat/heartbeat.json';
+const ACTIONS = 'https://api.github.com/repos/BRSQL/status/actions/workflows/probe.yml/runs?status=success&per_page=1';
+const ALERTA_MIN = 15;
+
+function haQuanto(iso) {
+  const min = Math.round((Date.now() - new Date(iso)) / 60000);
+  if (min < 1) return 'agora há pouco';
+  if (min < 60) return `há ${min} min`;
+  return `há ${Math.round(min / 60)} h`;
+}
+
+function verificacao() {
+  const el = document.getElementById('checked');
+  const mostrar = (iso, fonte) => {
+    const min = (Date.now() - new Date(iso)) / 60000;
+    el.textContent = `Verificação automática${fonte}: ${dataPt(iso)} (${haQuanto(iso)})`;
+    el.className = min > ALERTA_MIN ? 'checked stale' : 'checked';
+  };
+  // ?v= por minuto: o raw.githubusercontent cacheia por URL (até 5 min).
+  fetch(`${BATIMENTO}?v=${Math.floor(Date.now() / 60000)}`, { cache: 'no-cache' })
+    .then((r) => r.ok ? r.json() : Promise.reject(r.status))
+    .then((b) => mostrar(b.checked_at, ' (a cada ' + Math.round(b.interval_s) + ' s)'))
+    .catch(() => fetch(ACTIONS, { headers: { Accept: 'application/vnd.github+json' } })
+      .then((r) => r.ok ? r.json() : Promise.reject(r.status))
+      .then((j) => mostrar(j.workflow_runs[0].updated_at, ' (sonda secundária)'))
+      .catch(() => { el.textContent = 'Verificação automática: sem informação no momento'; el.className = 'checked stale'; }));
+}
+
+function carregar() {
 fetch('status.json', { cache: 'no-cache' })
   .then((r) => r.json())
   .then((d) => {
     // updated_at só muda quando o estado muda (as sondas não commitam sem mudança).
     document.getElementById('stamp').textContent = 'Última mudança: ' + dataPt(d.updated_at);
+    verificacao();
 
     const estados = d.components.map((c) => c.status);
     const banner = document.getElementById('banner');
@@ -146,6 +182,10 @@ fetch('status.json', { cache: 'no-cache' })
   .catch(() => {
     document.getElementById('banner-text').textContent = 'Não consegui carregar o estado — tente recarregar.';
   });
+}
+carregar();
+// Aba deixada aberta (balcão): recarrega sozinha a cada 5 min.
+setInterval(carregar, 5 * 60 * 1000);
 </script>
 </body>
 </html>

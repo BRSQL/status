@@ -8,8 +8,9 @@
 # Edita o status.json só quando o estado observado muda (componente +
 # incidente automático). Sem mudança, sem commit. 403 visto do runner
 # estrangeiro é INCONCLUSIVO (a WAF pode barrá-lo): não abre nem fecha nada e
-# vira um aviso no run. Fiscal/SEFAZ e Pagamentos são manuais ("manual": true)
-# e nunca são tocados; incidente escrito à mão também não.
+# vira um aviso no run. Fiscal/SEFAZ segue o portal público de disponibilidade
+# da SEFAZ (probe.py). Pagamentos é manual ("manual": true) e nunca é tocado;
+# incidente escrito à mão também não.
 name: probe
 
 on:
