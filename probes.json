@@ -1,9 +1,15 @@
 {
-  "_doc": "Sondas da automação (.github/workflows/probe.yml). Cada alvo é sondado DE FORA (runner do GitHub) e precisa devolver um dos accepted_statuses. O 403 é aceito porque a WAF pode bloquear o IP estrangeiro do runner; 404 e demais respostas inesperadas não são saudáveis. Componente com \"manual\": true no status.json nunca é tocado pela sonda.",
+  "_doc": "Alvos das sondas. A principal é scripts/feeder.py (VM no Brasil, a cada 30 s); a segunda opinião é .github/workflows/probe.yml (GitHub Actions, best-effort). Cada alvo precisa devolver um dos accepted_statuses; 403 nunca é saudável (na VM é falha; no runner estrangeiro do Actions é inconclusivo, porque a WAF pode barrá-lo). Componente com \"manual\": true no status.json nunca é tocado. Este repositório é PÚBLICO: nunca coloque aqui host, slug ou rota de cliente.",
+  "_todo_waf": "Hoje só o shard 1 tem prova ponta a ponta (app.brsql.com.br/api/users/login). A criar: um host de sonda por shard, com nome neutro (sem cliente), regra na WAF que libere o User-Agent YveraStatusProbe e uma rota que atravesse túnel -> web -> api DAQUELE shard sem autenticação nem limitador; depois, um alvo por shard aqui (componente api).",
+  "controls": [
+    "https://www.google.com/generate_204",
+    "https://1.1.1.1/cdn-cgi/trace"
+  ],
+  "_doc_controls": "Só a sonda contínua usa: quando algum alvo falha, ela consulta estes endereços fora da Yvera; se nenhum responder, a rede é a da VM e a rodada é descartada.",
   "targets": [
-    { "component": "painel", "url": "https://app.brsql.com.br/", "accepted_statuses": [200, 403] },
-    { "component": "api", "url": "https://app.brsql.com.br/api/users/login", "accepted_statuses": [405, 403], "_doc": "GET numa rota POST-only: 405 prova nginx→api vivos, sem tocar autenticação" },
-    { "component": "site", "url": "https://yvera.app.br/", "accepted_statuses": [200, 403], "_doc": "host canônico desde 2026-08-14; brsql.com.br continua legado em paralelo" },
-    { "component": "marketplace", "url": "https://pedidos.yvera.app.br/", "accepted_statuses": [200, 403], "_doc": "host canônico desde 2026-08-15; pedidos.brsql.com.br continua legado em paralelo" }
+    { "component": "painel", "url": "https://app.brsql.com.br/", "accepted_statuses": [200] },
+    { "component": "api", "url": "https://app.brsql.com.br/api/users/login", "accepted_statuses": [405], "_doc": "GET numa rota só-POST: 405 prova túnel -> web -> api do shard 1 vivos sem tocar autenticação nem o limitador de login" },
+    { "component": "site", "url": "https://yvera.app.br/", "accepted_statuses": [200], "_doc": "host canônico desde 2026-08-14; brsql.com.br continua legado em paralelo" },
+    { "component": "marketplace", "url": "https://pedidos.yvera.app.br/", "accepted_statuses": [200], "_doc": "host canônico desde 2026-08-15; pedidos.brsql.com.br continua legado em paralelo" }
   ]
 }

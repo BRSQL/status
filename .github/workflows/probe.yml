@@ -1,11 +1,15 @@
-# Sonda externa da status page — a cada 5 min, de FORA da infra.
+# Sonda da status page no GitHub Actions — SEGUNDA OPINIÃO.
 #
-# O runner do GitHub sonda os endpoints públicos e edita o status.json quando
-# o estado observado muda (componente + incidente automático). Sem mudança,
-# sem commit — o histórico do repo é o histórico de INCIDENTES, não de ticks.
+# A sonda principal é scripts/feeder.py (VM no Brasil, a cada 30 s). Esta
+# cobre a VM fora do ar: o cron hospedado é best-effort (na prática roda a
+# cada 3–5 h) e o GitHub o desativa após 60 dias sem atividade no repo —
+# reative com `gh workflow enable probe -R BRSQL/status`.
 #
-# Fiscal/SEFAZ e Pagamentos são manuais ("manual": true no status.json) — a
-# sonda nunca os toca. Incidente escrito à mão também nunca é tocado.
+# Edita o status.json só quando o estado observado muda (componente +
+# incidente automático). Sem mudança, sem commit. 403 visto do runner
+# estrangeiro é INCONCLUSIVO (a WAF pode barrá-lo): não abre nem fecha nada e
+# vira um aviso no run. Fiscal/SEFAZ e Pagamentos são manuais ("manual": true)
+# e nunca são tocados; incidente escrito à mão também não.
 name: probe
 
 on:
