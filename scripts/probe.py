@@ -21,6 +21,8 @@ Regras deliberadas:
 - 403 NUNCA é saudável. No runner do Actions (IP estrangeiro) ele é
   INCONCLUSIVO: a WAF pode barrar o runner, então 403 não abre nem fecha
   incidente aqui. Na VM (feeder.py) 403 é falha comum.
+- Fiscal/SEFAZ segue o semáforo do portal público de disponibilidade da NF-e
+  (alvo "kind": "sefaz_portal"; ver seção Fiscal/SEFAZ abaixo).
 - Componente com "manual": true é do OPERADOR — a sonda nunca o toca (é o
   caso do Fiscal/SEFAZ e Pagamentos, que não são sondáveis por HTTP).
 - Incidente aberto pela sonda leva `"auto": true` e o id do componente; a
@@ -31,7 +33,9 @@ Regras deliberadas:
   incidente por cima dela.
 """
 
+import html
 import json
+import re
 import sys
 import time
 import urllib.error
@@ -188,6 +192,131 @@ def serializar(estado: dict) -> str:
     return json.dumps(estado, ensure_ascii=False, indent=2) + "\n"
 
 
+# --- Fiscal/SEFAZ: portal público de disponibilidade -------------------------
+#
+# A plataforma emite pelo SVRS. Não dá para falar com a SEFAZ sem certificado,
+# então o componente fiscal segue o semáforo público do portal da NF-e
+# (www.nfe.fazenda.gov.br/portal/disponibilidade.aspx): verde = resposta
+# positiva, amarelo = primeira negativa (fica até 10 min), vermelho = negativas
+# seguidas. É a régua da própria SEFAZ, com histerese própria — por isso a
+# leitura é aplicada direto, sem segunda confirmação. Portal fora do ar ou
+# com layout diferente = não mexe em nada.
+
+PORTAL_SEFAZ = "https://www.nfe.fazenda.gov.br/portal/disponibilidade.aspx"
+TIMEOUT_PORTAL_S = 40
+KIND_SEFAZ = "sefaz_portal"
+COR_PARA_ESTADO = {"verde": "operational", "amarela": "degraded", "vermelho": "outage"}
+PESO = {"operational": 0, "degraded": 1, "outage": 2}
+
+
+def baixar_portal_sefaz(timeout: float = TIMEOUT_PORTAL_S) -> str | None:
+    req = urllib.request.Request(PORTAL_SEFAZ, headers={
+        "User-Agent": "Mozilla/5.0 " + USER_AGENT,
+        # sem este cookie o portal responde 302 para ?AspxAutoDetectCookieSupport=1
+        "Cookie": "AspxAutoDetectCookieSupport=1",
+    })
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            return resp.read().decode("utf-8", errors="replace")
+    except Exception as e:
+        print(f"[probe] portal SEFAZ inacessível: {_descrever_erro(e)}")
+        return None
+
+
+def interpretar_portal_sefaz(pagina: str, autorizador: str, servicos: list[str]) -> str | None:
+    """Pior estado entre `servicos` na linha de `autorizador`. None = não achou."""
+    cabecalho = None
+    for tr in re.findall(r"<tr.*?</tr>", pagina, re.S | re.I):
+        celulas = re.findall(r"<t[dh][^>]*>(.*?)</t[dh]>", tr, re.S | re.I)
+        textos = [html.unescape(re.sub(r"<[^>]+>", "", c)).strip() for c in celulas]
+        if not textos:
+            continue
+        if textos[0] == "Autorizador":
+            cabecalho = [re.sub(r"\d+$", "", t) for t in textos]  # "Autorização4" -> "Autorização"
+            continue
+        if cabecalho and textos[0] == autorizador:
+            pior = None
+            for nome, celula in zip(cabecalho, celulas):
+                if nome not in servicos:
+                    continue
+                m = re.search(r"bola_(verde|amarela|vermelho)", celula)
+                if not m:
+                    continue
+                est = COR_PARA_ESTADO[m.group(1)]
+                if pior is None or PESO[est] > PESO[pior]:
+                    pior = est
+            return pior
+    return None
+
+
+def ler_portal_sefaz(autorizador: str, servicos: list[str],
+                     timeout: float = TIMEOUT_PORTAL_S) -> str | None:
+    pagina = baixar_portal_sefaz(timeout)
+    if pagina is None:
+        return None
+    estado = interpretar_portal_sefaz(pagina, autorizador, servicos)
+    if estado is None:
+        print(f"[probe] portal SEFAZ: linha {autorizador!r} não encontrada (layout mudou?)")
+    return estado
+
+
+def _texto_sefaz(autorizador: str, observado: str) -> str:
+    cor = "com falhas seguidas (vermelho)" if observado == "outage" else "instável (amarelo)"
+    return (f"O portal público de disponibilidade da SEFAZ indica o autorizador {autorizador} {cor}. "
+            "A falha é do lado da SEFAZ, não do sistema: a emissão continua em contingência e as "
+            "notas são transmitidas quando o serviço volta.")
+
+
+def aplicar_sefaz(estado: dict, comp: dict, observado: str | None, autorizador: str) -> list[str]:
+    """Leva o componente fiscal ao estado observado no portal. Devolve mudanças.
+
+    Só abre/fecha o que a sonda mesma abriu: estado declarado à mão (sem
+    incidente automático aberto) e `maintenance` são do operador.
+    """
+    if observado is None or comp.get("manual") or comp["status"] == "maintenance":
+        return []
+    if observado == comp["status"]:
+        return []
+    abertos = incidentes_auto_abertos(estado, comp["id"])
+    quando = agora()
+    if observado == "operational":
+        if not abertos:
+            return []
+        comp["status"] = "operational"
+        for inc in abertos:
+            inc["resolved"] = True
+            inc["status"] = "operational"
+            inc.setdefault("updates", []).insert(0, {
+                "time": quando,
+                "text": f"Normalizado — o portal da SEFAZ voltou a indicar o autorizador {autorizador} operando.",
+            })
+        return [f"{comp['id']} normalizado (SEFAZ {autorizador})"]
+    if abertos:
+        anterior = comp["status"]
+        comp["status"] = observado
+        for inc in abertos:
+            inc["status"] = observado
+            inc.setdefault("updates", []).insert(0, {
+                "time": quando,
+                "text": (f"Portal da SEFAZ passou a indicar falhas seguidas no autorizador {autorizador} (vermelho)."
+                         if observado == "outage" else
+                         f"Portal da SEFAZ voltou a indicar apenas instabilidade no autorizador {autorizador} (amarelo)."),
+            })
+        return [f"{comp['id']} {anterior} -> {observado} (SEFAZ {autorizador})"]
+    if comp["status"] != "operational":
+        return []  # degraded/outage declarado à mão: do operador
+    comp["status"] = observado
+    estado.setdefault("incidents", []).insert(0, {
+        "date": quando,
+        "title": f"Instabilidade na SEFAZ ({autorizador}) — fora da plataforma",
+        "status": observado,
+        "auto": True,
+        "component": comp["id"],
+        "updates": [{"time": quando, "text": _texto_sefaz(autorizador, observado)}],
+    })
+    return [f"{comp['id']} {observado} (SEFAZ {autorizador})"]
+
+
 # --- segunda opinião (GitHub Actions) ----------------------------------------
 
 def classificar_actions(medida: Medida, accepted_statuses: list[int]) -> str:
@@ -226,6 +355,13 @@ def main() -> int:
     for alvo in probes["targets"]:
         comp = componentes.get(alvo["component"])
         if comp is None or comp.get("manual"):
+            continue
+        if alvo.get("kind") == KIND_SEFAZ:
+            observado = ler_portal_sefaz(alvo["autorizador"], alvo["services"])
+            mudancas = aplicar_sefaz(estado, comp, observado, alvo["autorizador"])
+            mudou = mudou or bool(mudancas)
+            print(f"[probe] {comp['id']}: " + ("; ".join(mudancas) if mudancas
+                  else f"{observado or 'portal ilegível'} (sem mudança)"))
             continue
         resultado = sondar(alvo["url"], alvo.get("accepted_statuses", []))
 

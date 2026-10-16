@@ -72,7 +72,20 @@ Regras comuns:
 - queda → componente vira `outage` + incidente automático (`"auto": true`);
   normalização fecha o MESMO incidente com update. Sem mudança, sem commit —
   por isso o carimbo da página é "Última mudança", não "atualizado".
-- componente com `"manual": true` (Fiscal/SEFAZ, Pagamentos) é do OPERADOR —
+- **Verificação automática** (segunda linha da página): o feeder força-push a
+  cada 5 min um único commit com `heartbeat.json` no ramo `heartbeat` (hora da
+  verificação, saúde por alvo, leitura da SEFAZ). A página lê esse arquivo e
+  mostra "há N min"; passou de 15 min, fica em alerta (sonda parada?). Sem o
+  ramo, cai para a última execução do Actions. A aba aberta recarrega sozinha
+  a cada 5 min.
+- **Fiscal/SEFAZ** segue o semáforo do portal público de disponibilidade da
+  NF-e (linha do autorizador SVRS; colunas Autorização, Retorno Autorização e
+  Status Serviço): amarelo → `degraded`, vermelho → `outage`, verde fecha o
+  incidente. O incidente automático diz em texto claro que a falha é da SEFAZ
+  e que a contingência segue emitindo — é a prova para o cliente. O feeder lê
+  o portal a cada 5 min; o Actions, a cada run. Portal inacessível não altera
+  nada; `degraded`/`outage` declarado à mão e `maintenance` são do operador.
+- componente com `"manual": true` (Pagamentos) é do OPERADOR —
   a sonda nunca o toca. Incidente escrito à mão também nunca é tocado, e
   `outage` declarado à mão (sem incidente automático aberto) só volta a
   `operational` pela mão do operador. `maintenance` declarada não é
@@ -93,7 +106,8 @@ serviço de usuário `status-feeder`, com `Restart=always`. A cada 30 s:
    rotação 5 MB × 6);
 2. se algum alvo falhou, consulta os `controls` (Google/Cloudflare): sem
    resposta de nenhum, a rede é a da VM e a rodada é descartada;
-3. aplica a histerese e, só se o estado publicado precisa mudar, monta o
+3. a cada 5 min lê o portal da SEFAZ e publica o batimento (ramo `heartbeat`);
+4. aplica a histerese e, só se o estado publicado precisa mudar, monta o
    commit sobre a `origin/main` (apenas `status.json`, autor
    `yvera-status-feeder`) e faz push; corrida com outro commit → relê e tenta
    de novo (3×). Falha de push fica no journal e é retentada na rodada

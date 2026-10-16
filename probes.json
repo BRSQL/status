@@ -10,6 +10,7 @@
     { "component": "painel", "url": "https://app.brsql.com.br/", "accepted_statuses": [200] },
     { "component": "api", "url": "https://app.brsql.com.br/api/users/login", "accepted_statuses": [405], "_doc": "GET numa rota só-POST: 405 prova túnel -> web -> api do shard 1 vivos sem tocar autenticação nem o limitador de login" },
     { "component": "site", "url": "https://yvera.app.br/", "accepted_statuses": [200], "_doc": "host canônico desde 2026-08-14; brsql.com.br continua legado em paralelo" },
-    { "component": "marketplace", "url": "https://pedidos.yvera.app.br/", "accepted_statuses": [200], "_doc": "host canônico desde 2026-08-15; pedidos.brsql.com.br continua legado em paralelo" }
+    { "component": "marketplace", "url": "https://pedidos.yvera.app.br/", "accepted_statuses": [200], "_doc": "host canônico desde 2026-08-15; pedidos.brsql.com.br continua legado em paralelo" },
+    { "component": "fiscal", "kind": "sefaz_portal", "autorizador": "SVRS", "services": ["Autorização", "Retorno Autorização", "Status Serviço"], "_doc": "Semáforo do portal público www.nfe.fazenda.gov.br/portal/disponibilidade.aspx; a plataforma emite pelo SVRS (nfe.svrs.rs.gov.br). Amarelo=degraded, vermelho=outage, portal fora=não mexe. Feeder lê a cada 5 min; Actions a cada run." }
   ]
 }
