@@ -1,0 +1,23 @@
+# Testes das sondas (scripts/test_probe.py) — sem rede, só biblioteca padrão.
+name: test
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+    paths:
+      - "scripts/**"
+      - "probes.json"
+      - ".github/workflows/**"
+
+permissions:
+  contents: read
+
+jobs:
+  unittest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Testes
+        run: python3 -m unittest discover -s scripts -p 'test_*.py' -v

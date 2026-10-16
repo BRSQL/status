@@ -1,0 +1,29 @@
+# Sonda contínua da status page (scripts/feeder.py) como serviço de USUÁRIO.
+# Instalação, operação e reversão: README.md, seção "Sonda contínua (VM)".
+#
+#   ln -s ~/worktrees/status/feeder/scripts/systemd/status-feeder.service ~/.config/systemd/user/
+#   systemctl --user daemon-reload && systemctl --user enable --now status-feeder
+#
+# Requer linger (loginctl enable-linger) para rodar sem sessão aberta.
+# Credencial: a já existente em ~/.gh_token, lida pelo feeder só na hora do
+# fetch/push e entregue ao git via `gh auth git-credential`; nunca é logada.
+[Unit]
+Description=Sonda contínua da status page (status.brsql.com.br)
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+WorkingDirectory=%h/worktrees/status/feeder
+ExecStart=/usr/bin/python3 %h/worktrees/status/feeder/scripts/feeder.py
+Environment=PYTHONUNBUFFERED=1
+Environment=PYTHONDONTWRITEBYTECODE=1
+Environment=PATH=%h/.local/bin:/usr/local/bin:/usr/bin:/bin
+Environment=FEEDER_GH_TOKEN_FILE=%h/.gh_token
+Restart=always
+RestartSec=15
+TimeoutStopSec=30
+Nice=5
+NoNewPrivileges=yes
+
+[Install]
+WantedBy=default.target
