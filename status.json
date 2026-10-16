@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-08-09T21:30:00-03:00",
+  "updated_at": "2026-10-16T11:45:00-03:00",
   "components": [
     {
       "id": "painel",
@@ -39,5 +39,27 @@
       "note": ""
     }
   ],
-  "incidents": []
+  "incidents": [
+    {
+      "date": "2026-10-16T08:08:00-03:00",
+      "title": "Indisponibilidade do painel e da API — manutenção não programada do provedor",
+      "status": "operational",
+      "resolved": true,
+      "component": "painel",
+      "updates": [
+        {
+          "time": "2026-10-16T08:34:00-03:00",
+          "text": "Normalizado. O servidor voltou e painel e API responderam de novo. Pedidos feitos na maquininha/tablet durante a janela ficaram salvos localmente e sincronizaram em seguida. Causa: manutenção não programada do provedor de hospedagem no servidor principal; ações para reduzir o impacto de um evento desses estão em andamento."
+        },
+        {
+          "time": "2026-10-16T08:33:00-03:00",
+          "text": "Causa identificada: reinício do servidor pelo provedor de hospedagem. Aplicando contorno enquanto o servidor não volta."
+        },
+        {
+          "time": "2026-10-16T08:08:00-03:00",
+          "text": "Painel de gestão (app.brsql.com.br) e API sem resposta (erro 502). Investigando."
+        }
+      ]
+    }
+  ]
 }
