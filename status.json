@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-16T20:31:20-03:00",
+  "updated_at": "2026-10-16T22:04:50-03:00",
   "components": [
     {
       "id": "painel",
@@ -16,7 +16,7 @@
     {
       "id": "fiscal",
       "name": "Emissão fiscal — SEFAZ",
-      "status": "operational",
+      "status": "degraded",
       "note": "Acompanha o portal público de disponibilidade da SEFAZ (autorizador SVRS). Instabilidade aqui é da SEFAZ, não do sistema: o modo de contingência segue emitindo."
     },
     {
@@ -40,6 +40,19 @@
     }
   ],
   "incidents": [
+    {
+      "date": "2026-10-16T22:04:50-03:00",
+      "title": "Instabilidade na SEFAZ (SVRS) — fora da plataforma",
+      "status": "degraded",
+      "auto": true,
+      "component": "fiscal",
+      "updates": [
+        {
+          "time": "2026-10-16T22:04:50-03:00",
+          "text": "O portal público de disponibilidade da SEFAZ indica o autorizador SVRS instável (amarelo). A falha é do lado da SEFAZ, não do sistema: a emissão continua em contingência e as notas são transmitidas quando o serviço volta."
+        }
+      ]
+    },
     {
       "date": "2026-10-16T20:25:51-03:00",
       "title": "Instabilidade na SEFAZ (SVRS) — fora da plataforma",
