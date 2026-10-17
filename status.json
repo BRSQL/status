@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-16T22:10:21-03:00",
+  "updated_at": "2026-10-17T04:07:21-03:00",
   "components": [
     {
       "id": "painel",
@@ -29,17 +29,43 @@
     {
       "id": "marketplace",
       "name": "Pedidos online e delivery (pedidos.yvera.app.br)",
-      "status": "operational",
+      "status": "outage",
       "note": ""
     },
     {
       "id": "site",
       "name": "Site e assinatura (yvera.app.br)",
-      "status": "operational",
+      "status": "outage",
       "note": ""
     }
   ],
   "incidents": [
+    {
+      "date": "2026-10-17T04:07:21-03:00",
+      "title": "Indisponibilidade — Site e assinatura (yvera.app.br)",
+      "status": "outage",
+      "auto": true,
+      "component": "site",
+      "updates": [
+        {
+          "time": "2026-10-17T04:07:21-03:00",
+          "text": "A sonda externa não alcançou o serviço em verificações seguidas. Investigando."
+        }
+      ]
+    },
+    {
+      "date": "2026-10-17T04:07:21-03:00",
+      "title": "Indisponibilidade — Pedidos online e delivery (pedidos.yvera.app.br)",
+      "status": "outage",
+      "auto": true,
+      "component": "marketplace",
+      "updates": [
+        {
+          "time": "2026-10-17T04:07:21-03:00",
+          "text": "A sonda externa não alcançou o serviço em verificações seguidas. Investigando."
+        }
+      ]
+    },
     {
       "date": "2026-10-16T22:04:50-03:00",
       "title": "Instabilidade na SEFAZ (SVRS) — fora da plataforma",
