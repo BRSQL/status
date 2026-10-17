@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-17T13:02:50-03:00",
+  "updated_at": "2026-10-17T13:19:20-03:00",
   "components": [
     {
       "id": "painel",
@@ -16,7 +16,7 @@
     {
       "id": "fiscal",
       "name": "Emissão fiscal — SEFAZ",
-      "status": "operational",
+      "status": "degraded",
       "note": "Acompanha o portal público de disponibilidade da SEFAZ (autorizador SVRS). Instabilidade aqui é da SEFAZ, não do sistema: o modo de contingência segue emitindo."
     },
     {
@@ -40,6 +40,19 @@
     }
   ],
   "incidents": [
+    {
+      "date": "2026-10-17T13:19:20-03:00",
+      "title": "Instabilidade na SEFAZ (SVRS) — fora da plataforma",
+      "status": "degraded",
+      "auto": true,
+      "component": "fiscal",
+      "updates": [
+        {
+          "time": "2026-10-17T13:19:20-03:00",
+          "text": "O portal público de disponibilidade da SEFAZ indica o autorizador SVRS instável (amarelo). A falha é do lado da SEFAZ, não do sistema: a emissão continua em contingência e as notas são transmitidas quando o serviço volta."
+        }
+      ]
+    },
     {
       "date": "2026-10-17T12:51:50-03:00",
       "title": "Instabilidade na SEFAZ (SVRS) — fora da plataforma",
@@ -389,32 +402,6 @@
         },
         {
           "time": "2026-10-17T07:38:50-03:00",
-          "text": "O portal público de disponibilidade da SEFAZ indica o autorizador SVRS instável (amarelo). A falha é do lado da SEFAZ, não do sistema: a emissão continua em contingência e as notas são transmitidas quando o serviço volta."
-        }
-      ],
-      "resolved": true
-    },
-    {
-      "date": "2026-10-17T06:38:21-03:00",
-      "title": "Instabilidade na SEFAZ (SVRS) — fora da plataforma",
-      "status": "operational",
-      "auto": true,
-      "component": "fiscal",
-      "updates": [
-        {
-          "time": "2026-10-17T07:16:50-03:00",
-          "text": "Normalizado — o portal da SEFAZ voltou a indicar o autorizador SVRS operando."
-        },
-        {
-          "time": "2026-10-17T07:05:50-03:00",
-          "text": "Portal da SEFAZ voltou a indicar apenas instabilidade no autorizador SVRS (amarelo)."
-        },
-        {
-          "time": "2026-10-17T06:49:20-03:00",
-          "text": "Portal da SEFAZ passou a indicar falhas seguidas no autorizador SVRS (vermelho)."
-        },
-        {
-          "time": "2026-10-17T06:38:21-03:00",
           "text": "O portal público de disponibilidade da SEFAZ indica o autorizador SVRS instável (amarelo). A falha é do lado da SEFAZ, não do sistema: a emissão continua em contingência e as notas são transmitidas quando o serviço volta."
         }
       ],
