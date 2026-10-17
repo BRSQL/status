@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-17T04:38:38-03:00",
+  "updated_at": "2026-10-17T04:57:40-03:00",
   "components": [
     {
       "id": "painel",
@@ -22,32 +22,36 @@
     {
       "id": "pagamentos",
       "name": "Pagamentos online (PIX e cartão)",
-      "status": "outage",
-      "note": "Pagamentos online (PIX e cartão pelo link/checkout) indisponíveis desde 04:04 por manutenção do provedor de hospedagem no servidor que guarda o banco de pagamentos. Maquininhas e pagamentos presenciais não são afetados.",
+      "status": "operational",
+      "note": "",
       "manual": true
     },
     {
       "id": "marketplace",
       "name": "Pedidos online e delivery (pedidos.yvera.app.br)",
-      "status": "degraded",
-      "note": "O cardápio abre, mas a conclusão de pedidos online está indisponível desde 04:04 (manutenção do provedor de hospedagem)."
+      "status": "operational",
+      "note": ""
     },
     {
       "id": "site",
       "name": "Site e assinatura (yvera.app.br)",
-      "status": "degraded",
-      "note": "As páginas abrem, mas cadastro, assinatura e área do cliente estão indisponíveis desde 04:04 (manutenção do provedor de hospedagem)."
+      "status": "operational",
+      "note": ""
     }
   ],
   "incidents": [
     {
       "date": "2026-10-17T04:04:00-03:00",
       "title": "Pagamentos online indisponíveis — manutenção do provedor de hospedagem",
-      "status": "outage",
-      "resolved": false,
+      "status": "operational",
+      "resolved": true,
       "component": "pagamentos",
       "manual": true,
       "updates": [
+        {
+          "time": "2026-10-17T04:57:40-03:00",
+          "text": "Normalizado às 04:46. O provedor de hospedagem concluiu a manutenção do host e o servidor voltou; os serviços religaram sozinhos e não houve perda de dados. A separação desses bancos em dois servidores já está planejada para que uma manutenção assim deixe de afetar pagamentos e pedidos online."
+        },
         {
           "time": "2026-10-17T04:38:38-03:00",
           "text": "Pagamentos online fora do ar desde 04:04. O provedor de hospedagem colocou em manutenção o host físico do servidor que guarda o banco de pagamentos; a máquina ficou parada e o provedor recusa religá-la até o fim da manutenção. Painel, maquininhas e pedidos em mesa seguem normais."
@@ -61,11 +65,15 @@
     {
       "date": "2026-10-17T04:04:00-03:00",
       "title": "Pedidos online indisponíveis (cardápio abre) — manutenção do provedor de hospedagem",
-      "status": "degraded",
-      "resolved": false,
+      "status": "operational",
+      "resolved": true,
       "component": "marketplace",
       "manual": true,
       "updates": [
+        {
+          "time": "2026-10-17T04:57:40-03:00",
+          "text": "Normalizado às 04:46. O provedor de hospedagem concluiu a manutenção do host e o servidor voltou; os serviços religaram sozinhos e não houve perda de dados. A separação desses bancos em dois servidores já está planejada para que uma manutenção assim deixe de afetar pagamentos e pedidos online."
+        },
         {
           "time": "2026-10-17T04:38:38-03:00",
           "text": "Desde 04:04 o cardápio online abre, mas os pedidos não são concluídos: o banco do serviço de pedidos online está no servidor em manutenção pelo provedor de hospedagem. Pedidos presenciais e por QR na mesa seguem normais."
@@ -79,11 +87,15 @@
     {
       "date": "2026-10-17T04:04:00-03:00",
       "title": "Cadastro e assinatura indisponíveis (site abre) — manutenção do provedor de hospedagem",
-      "status": "degraded",
-      "resolved": false,
+      "status": "operational",
+      "resolved": true,
       "component": "site",
       "manual": true,
       "updates": [
+        {
+          "time": "2026-10-17T04:57:40-03:00",
+          "text": "Normalizado às 04:46. O provedor de hospedagem concluiu a manutenção do host e o servidor voltou; os serviços religaram sozinhos e não houve perda de dados. A separação desses bancos em dois servidores já está planejada para que uma manutenção assim deixe de afetar pagamentos e pedidos online."
+        },
         {
           "time": "2026-10-17T04:38:38-03:00",
           "text": "Desde 04:04 as páginas do site abrem, mas cadastro, assinatura e área do cliente não funcionam: o banco do site está no servidor em manutenção pelo provedor de hospedagem."
