@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-17T11:24:21-03:00",
+  "updated_at": "2026-10-17T11:29:50-03:00",
   "components": [
     {
       "id": "painel",
@@ -16,7 +16,7 @@
     {
       "id": "fiscal",
       "name": "Emissão fiscal — SEFAZ",
-      "status": "operational",
+      "status": "degraded",
       "note": "Acompanha o portal público de disponibilidade da SEFAZ (autorizador SVRS). Instabilidade aqui é da SEFAZ, não do sistema: o modo de contingência segue emitindo."
     },
     {
@@ -40,6 +40,19 @@
     }
   ],
   "incidents": [
+    {
+      "date": "2026-10-17T11:29:50-03:00",
+      "title": "Instabilidade na SEFAZ (SVRS) — fora da plataforma",
+      "status": "degraded",
+      "auto": true,
+      "component": "fiscal",
+      "updates": [
+        {
+          "time": "2026-10-17T11:29:50-03:00",
+          "text": "O portal público de disponibilidade da SEFAZ indica o autorizador SVRS instável (amarelo). A falha é do lado da SEFAZ, não do sistema: a emissão continua em contingência e as notas são transmitidas quando o serviço volta."
+        }
+      ]
+    },
     {
       "date": "2026-10-17T11:07:50-03:00",
       "title": "Instabilidade na SEFAZ (SVRS) — fora da plataforma",
@@ -403,28 +416,6 @@
         {
           "time": "2026-10-17T04:38:38-03:00",
           "text": "Desde 04:04 o cardápio online abre, mas os pedidos não são concluídos: o banco do serviço de pedidos online está no servidor em manutenção pelo provedor de hospedagem. Pedidos presenciais e por QR na mesa seguem normais."
-        },
-        {
-          "time": "2026-10-17T04:04:00-03:00",
-          "text": "Serviço sem resposta. Investigando."
-        }
-      ]
-    },
-    {
-      "date": "2026-10-17T04:04:00-03:00",
-      "title": "Cadastro e assinatura indisponíveis (site abre) — manutenção do provedor de hospedagem",
-      "status": "operational",
-      "resolved": true,
-      "component": "site",
-      "manual": true,
-      "updates": [
-        {
-          "time": "2026-10-17T04:57:40-03:00",
-          "text": "Normalizado às 04:46. O provedor de hospedagem concluiu a manutenção do host e o servidor voltou; os serviços religaram sozinhos e não houve perda de dados. A separação desses bancos em dois servidores já está planejada para que uma manutenção assim deixe de afetar pagamentos e pedidos online."
-        },
-        {
-          "time": "2026-10-17T04:38:38-03:00",
-          "text": "Desde 04:04 as páginas do site abrem, mas cadastro, assinatura e área do cliente não funcionam: o banco do site está no servidor em manutenção pelo provedor de hospedagem."
         },
         {
           "time": "2026-10-17T04:04:00-03:00",
