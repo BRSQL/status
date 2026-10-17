@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-17T09:45:21-03:00",
+  "updated_at": "2026-10-17T09:56:21-03:00",
   "components": [
     {
       "id": "painel",
@@ -16,7 +16,7 @@
     {
       "id": "fiscal",
       "name": "Emissão fiscal — SEFAZ",
-      "status": "operational",
+      "status": "degraded",
       "note": "Acompanha o portal público de disponibilidade da SEFAZ (autorizador SVRS). Instabilidade aqui é da SEFAZ, não do sistema: o modo de contingência segue emitindo."
     },
     {
@@ -40,6 +40,19 @@
     }
   ],
   "incidents": [
+    {
+      "date": "2026-10-17T09:56:21-03:00",
+      "title": "Instabilidade na SEFAZ (SVRS) — fora da plataforma",
+      "status": "degraded",
+      "auto": true,
+      "component": "fiscal",
+      "updates": [
+        {
+          "time": "2026-10-17T09:56:21-03:00",
+          "text": "O portal público de disponibilidade da SEFAZ indica o autorizador SVRS instável (amarelo). A falha é do lado da SEFAZ, não do sistema: a emissão continua em contingência e as notas são transmitidas quando o serviço volta."
+        }
+      ]
+    },
     {
       "date": "2026-10-17T09:39:50-03:00",
       "title": "Instabilidade na SEFAZ (SVRS) — fora da plataforma",
@@ -405,27 +418,6 @@
         }
       ],
       "resolved": true
-    },
-    {
-      "date": "2026-10-16T08:08:00-03:00",
-      "title": "Indisponibilidade do painel e da API — manutenção não programada do provedor",
-      "status": "operational",
-      "resolved": true,
-      "component": "painel",
-      "updates": [
-        {
-          "time": "2026-10-16T08:34:00-03:00",
-          "text": "Normalizado. O servidor voltou e painel e API responderam de novo. Pedidos feitos na maquininha/tablet durante a janela ficaram salvos localmente e sincronizaram em seguida. Causa: manutenção não programada do provedor de hospedagem no servidor principal; ações para reduzir o impacto de um evento desses estão em andamento."
-        },
-        {
-          "time": "2026-10-16T08:33:00-03:00",
-          "text": "Causa identificada: reinício do servidor pelo provedor de hospedagem. Aplicando contorno enquanto o servidor não volta."
-        },
-        {
-          "time": "2026-10-16T08:08:00-03:00",
-          "text": "Painel de gestão (app.brsql.com.br) e API sem resposta (erro 502). Investigando."
-        }
-      ]
     }
   ]
 }
