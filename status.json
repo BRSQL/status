@@ -1,16 +1,16 @@
 {
-  "updated_at": "2026-10-17T19:48:50-03:00",
+  "updated_at": "2026-10-17T21:00:36-03:00",
   "components": [
     {
       "id": "painel",
       "name": "Painel de gestão (app.brsql.com.br)",
-      "status": "operational",
+      "status": "maintenance",
       "note": ""
     },
     {
       "id": "api",
       "name": "API e sincronização do aplicativo (maquininha/tablet)",
-      "status": "operational",
+      "status": "maintenance",
       "note": ""
     },
     {
@@ -40,6 +40,19 @@
     }
   ],
   "incidents": [
+    {
+      "date": "2026-10-17T21:00:36-03:00",
+      "title": "Manutenção programada de infraestrutura (22h às 05h)",
+      "status": "maintenance",
+      "component": "api",
+      "manual": true,
+      "updates": [
+        {
+          "time": "2026-10-17T21:00:36-03:00",
+          "text": "Janela de manutenção programada das 22h às 05h: atualizações na rede e no plano de controle dos servidores e limpeza de volumes antigos. Painel e API podem ter interrupções breves, de alguns segundos, em momentos pontuais. Maquininhas e emissão fiscal seguem operando. Este aviso será atualizado ao fim da janela."
+        }
+      ]
+    },
     {
       "date": "2026-10-17T19:43:20-03:00",
       "title": "Instabilidade na SEFAZ (SVRS) — fora da plataforma",
