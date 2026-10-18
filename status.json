@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-18T20:04:50-03:00",
+  "updated_at": "2026-10-18T20:10:20-03:00",
   "components": [
     {
       "id": "painel",
@@ -16,7 +16,7 @@
     {
       "id": "fiscal",
       "name": "Emissão fiscal — SEFAZ",
-      "status": "operational",
+      "status": "degraded",
       "note": "Acompanha o portal público de disponibilidade da SEFAZ (autorizador SVRS). Instabilidade aqui é da SEFAZ, não do sistema: o modo de contingência segue emitindo."
     },
     {
@@ -40,6 +40,19 @@
     }
   ],
   "incidents": [
+    {
+      "date": "2026-10-18T20:10:20-03:00",
+      "title": "Instabilidade na SEFAZ (SVRS) — fora da plataforma",
+      "status": "degraded",
+      "auto": true,
+      "component": "fiscal",
+      "updates": [
+        {
+          "time": "2026-10-18T20:10:20-03:00",
+          "text": "O portal público de disponibilidade da SEFAZ indica o autorizador SVRS instável (amarelo). A falha é do lado da SEFAZ, não do sistema: a emissão continua em contingência e as notas são transmitidas quando o serviço volta."
+        }
+      ]
+    },
     {
       "date": "2026-10-18T19:59:20-03:00",
       "title": "Instabilidade na SEFAZ (SVRS) — fora da plataforma",
@@ -382,24 +395,6 @@
         {
           "time": "2026-10-18T09:48:50-03:00",
           "text": "O portal público de disponibilidade da SEFAZ indica o autorizador SVRS instável (amarelo). A falha é do lado da SEFAZ, não do sistema: a emissão continua em contingência e as notas são transmitidas quando o serviço volta."
-        }
-      ],
-      "resolved": true
-    },
-    {
-      "date": "2026-10-17T21:00:36-03:00",
-      "title": "Manutenção programada de infraestrutura (22h às 05h)",
-      "status": "operational",
-      "component": "api",
-      "manual": true,
-      "updates": [
-        {
-          "time": "2026-10-18T01:06:36-03:00",
-          "text": "Manutenção concluída. Painel e API normais durante toda a janela, com interrupções pontuais de segundos conforme previsto."
-        },
-        {
-          "time": "2026-10-17T21:00:36-03:00",
-          "text": "Janela de manutenção programada das 22h às 05h: atualizações na rede e no plano de controle dos servidores e limpeza de volumes antigos. Painel e API podem ter interrupções breves, de alguns segundos, em momentos pontuais. Maquininhas e emissão fiscal seguem operando. Este aviso será atualizado ao fim da janela."
         }
       ],
       "resolved": true
