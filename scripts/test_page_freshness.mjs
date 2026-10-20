@@ -255,3 +255,36 @@ test('new valid observation removes an earlier stale warning', async t => {
   assertFresh(p);
   assertPublishedOperational(p);
 });
+
+// Separate concurrency boundary: an older request must not replace the result
+// of a later refresh. These cases do not impose timestamp ordering on sources.
+test('older successful heartbeat response cannot replace a later refresh', async t => {
+  const held = deferred(), p = page();
+  t.after(async () => { held.resolve(response({ checked_at: new Date(START).toISOString(), interval_s: 30 })); await settle(); p.close(); });
+  await p.ready(); assertFresh(p);
+  p.routes.heartbeat = () => held.promise;
+  await p.advance(5 * MINUTE);
+  p.routes.heartbeat = () => response({ checked_at: new Date(p.now()).toISOString(), interval_s: 30 });
+  await p.advance(5 * MINUTE); assertFresh(p);
+  const current = p.get('checked').textContent;
+  held.resolve(response({ checked_at: new Date(START).toISOString(), interval_s: 30 }));
+  await settle();
+  assert.equal(p.get('checked').textContent, current);
+  assert.equal(stale(p), false);
+});
+
+test('older failed observation cannot erase a later successful refresh', async t => {
+  const held = deferred(), p = page();
+  t.after(async () => { held.resolve(response({}, 503)); await settle(); p.close(); });
+  await p.ready(); assertFresh(p);
+  p.routes.heartbeat = () => held.promise;
+  p.routes.actions = () => response({}, 503);
+  await p.advance(5 * MINUTE);
+  p.routes.heartbeat = () => response({ checked_at: new Date(p.now()).toISOString(), interval_s: 30 });
+  await p.advance(5 * MINUTE); assertFresh(p);
+  const current = p.get('checked').textContent;
+  held.resolve(response({}, 503));
+  await settle();
+  assert.equal(p.get('checked').textContent, current);
+  assert.equal(stale(p), false);
+});
