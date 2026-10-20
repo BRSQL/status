@@ -6,6 +6,7 @@ on:
   push:
     branches: [main]
     paths:
+      - "index.html"
       - "scripts/**"
       - "probes.json"
       - ".github/workflows/**"
@@ -19,5 +20,10 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-      - name: Testes
+      - name: Testes das sondas
         run: python3 -m unittest discover -s scripts -p 'test_*.py' -v
+      - name: Testes do JavaScript da página (Node 22+ do runner)
+        run: |
+          node --version
+          node -e 'if (Number(process.versions.node.split(".")[0]) < 22) process.exit(1)'
+          node --test scripts/test_page_freshness.mjs

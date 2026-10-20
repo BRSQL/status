@@ -84,7 +84,12 @@ Regras comuns:
   verificação, saúde por alvo, leitura da SEFAZ). A página lê esse arquivo e
   mostra "há N min"; passou de 15 min, fica em alerta (sonda parada?). Sem o
   ramo, cai para a última execução do Actions. A aba aberta recarrega sozinha
-  a cada 5 min.
+  a cada 5 min. A verificação é consultada independentemente de `status.json`,
+  e a idade exibida avança a cada minuto, mesmo se uma consulta falhar ou ficar
+  pendente. Data ausente/inválida tenta a sonda secundária; sem data válida,
+  mostra falta de informação. Uma resposta atrasada de uma consulta anterior
+  não substitui a consulta mais recente. O alerta indica verificação antiga
+  ou desconhecida, sem alterar o estado publicado dos componentes.
 - **Fiscal/SEFAZ** segue o semáforo do portal público de disponibilidade da
   NF-e (linha do autorizador SVRS; colunas Autorização, Retorno Autorização e
   Status Serviço): amarelo → `degraded`, vermelho → `outage`, verde fecha o
@@ -103,6 +108,16 @@ A edição manual do incidente continua igual (seção acima) — a sonda cobre 
 "caiu/voltou"; o CONTEXTO (causa, previsão) continua sendo trabalho de gente.
 Edite pela web do GitHub ou num clone atualizado: a sonda contínua escreve
 direto na `origin/main` e não atualiza o checkout da VM.
+
+## Testes da página
+
+`node --test scripts/test_page_freshness.mjs` requer Node 22 ou superior,
+sem instalação de pacotes. Executa o JavaScript inline real de `index.html`
+numa VM do Node, com DOM mínimo, relógio e respostas HTTP sintéticos. Cobre
+frescor, datas inválidas, fallback e respostas fora de ordem; não verifica
+layout, navegador, sondas reais ou disponibilidade dos serviços. O workflow
+`test` executa esse comando com o Node do runner e mantém os testes Python
+das sondas. Não há dependência nova para servir a página estática.
 
 ## Sonda contínua (VM)
 
