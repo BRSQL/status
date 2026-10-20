@@ -252,17 +252,21 @@ def interpretar_portal_sefaz(pagina: str, autorizador: str, servicos: list[str])
             cabecalho = [re.sub(r"\d+$", "", t) for t in textos]  # "Autorização4" -> "Autorização"
             continue
         if cabecalho and textos[0] == autorizador:
+            if len(celulas) != len(cabecalho):
+                return None
             pior = None
+            observados = set()
             for nome, celula in zip(cabecalho, celulas):
                 if nome not in servicos:
                     continue
                 m = re.search(r"bola_(verde|amarela|vermelho)", celula)
                 if not m:
-                    continue
+                    return None
+                observados.add(nome)
                 est = COR_PARA_ESTADO[m.group(1)]
                 if pior is None or PESO[est] > PESO[pior]:
                     pior = est
-            return pior
+            return pior if observados == set(servicos) else None
     return None
 
 
@@ -369,6 +373,7 @@ def main() -> int:
     componentes = componentes_por_id(estado)
 
     mudou = False
+    resultados_http: dict[str, list[str]] = {}
     for alvo in probes["targets"]:
         comp = componentes.get(alvo["component"])
         if comp is None or comp.get("manual"):
@@ -381,7 +386,14 @@ def main() -> int:
                   else f"{observado or 'portal ilegível'} (sem mudança)"))
             continue
         resultado = sondar(alvo["url"], alvo.get("accepted_statuses", []))
+        resultados_http.setdefault(comp["id"], []).append(resultado)
 
+    # Um alvo saudável não normaliza outro shard indisponível ou inconclusivo.
+    # A sonda contínua também agrega todos os alvos antes de decidir por componente.
+    for comp_id, resultados in resultados_http.items():
+        comp = componentes[comp_id]
+        resultado = (FORA if FORA in resultados else
+                     INCONCLUSIVO if INCONCLUSIVO in resultados else OK)
         if resultado == INCONCLUSIVO:
             # Anotação visível no run, sem mexer na página.
             print(f"::warning::{comp['id']}: 403 visto do runner (WAF?) — inconclusivo, estado mantido")
