@@ -89,6 +89,35 @@ class MedicaoTests(unittest.TestCase):
 # --- probe.py: segunda opinião (Actions) --------------------------------------
 
 class ActionsTests(unittest.TestCase):
+    def test_component_recovers_only_when_every_target_is_healthy(self):
+        cases = [
+            ((probe.FORA, probe.OK), "outage"),
+            ((probe.OK, probe.FORA), "outage"),
+            ((probe.INCONCLUSIVO, probe.OK), "outage"),
+            ((probe.OK, probe.INCONCLUSIVO), "outage"),
+            ((probe.OK, probe.OK), "operational"),
+        ]
+        for resultados, esperado in cases:
+            with self.subTest(resultados=resultados), tempfile.TemporaryDirectory() as d:
+                estado = estado_base()
+                comp = probe.componentes_por_id(estado)["api"]
+                probe.abrir_incidente(estado, comp, "Um shard está fora")
+                pathlib.Path(d, "status.json").write_text(json.dumps(estado))
+                pathlib.Path(d, "probes.json").write_text(json.dumps({"targets": [
+                    {"component": "api", "url": URL + "/s1", "accepted_statuses": [405]},
+                    {"component": "api", "url": URL + "/s2", "accepted_statuses": [405]},
+                ]}))
+                cwd = os.getcwd()
+                os.chdir(d)
+                try:
+                    with patch.object(probe, "sondar", side_effect=resultados):
+                        probe.main()
+                finally:
+                    os.chdir(cwd)
+                novo = json.loads(pathlib.Path(d, "status.json").read_text())
+                self.assertEqual(probe.componentes_por_id(novo)["api"]["status"], esperado)
+                self.assertEqual(len(novo["incidents"]), 1)
+
     @patch.object(probe.time, "sleep")
     def test_retries_once_before_declaring_failure(self, sleep):
         with patch.object(probe, "medir", side_effect=[medida(502), medida(200)]) as m:
@@ -405,6 +434,17 @@ class SefazPortalTests(unittest.TestCase):
     def test_unknown_layout_or_authorizer_is_none(self):
         self.assertIsNone(probe.interpretar_portal_sefaz(portal_sefaz(), "SVAN", SERVICOS))
         self.assertIsNone(probe.interpretar_portal_sefaz("<html>manutenção</html>", "SVRS", SERVICOS))
+
+    def test_partial_service_observation_is_inconclusive(self):
+        pagina = portal_sefaz(svrs=("verde", "amarela", "verde"))
+        casos = [
+            pagina.replace("bola_amarela_P.png", "indisponivel.png"),
+            pagina.replace("Retorno Autoriza&#231;&#227;o4", "Nome alterado"),
+            pagina.replace("<td><img src='imagens/bola_amarela_P.png'/></td>", ""),
+        ]
+        for parcial in casos:
+            with self.subTest(pagina=parcial):
+                self.assertIsNone(probe.interpretar_portal_sefaz(parcial, "SVRS", SERVICOS))
 
     @patch("probe.urllib.request.urlopen")
     def test_portal_unreachable_is_none_not_a_state(self, urlopen):

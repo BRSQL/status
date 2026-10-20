@@ -69,6 +69,9 @@ Regras comuns:
   rota de cliente nos alvos. Hoje só o shard 1 tem prova ponta a ponta
   (`/api/users/login` → 405); a sonda por shard depende de um host de sonda
   por shard liberado na WAF (ver `_todo_waf` em `probes.json`).
+- se vários alvos representam um componente, uma falha confirmada mantém
+  o componente fora do ar. A normalização exige resposta saudável de todos;
+  uma resposta inconclusiva não encerra o incidente de outro alvo.
 - queda → componente vira `outage` + incidente automático (`"auto": true`);
   normalização fecha o MESMO incidente com update. Sem mudança, sem commit —
   por isso o carimbo da página é "Última mudança", não "atualizado".
@@ -84,7 +87,8 @@ Regras comuns:
   incidente. O incidente automático diz em texto claro que a falha é da SEFAZ
   e que a contingência segue emitindo — é a prova para o cliente. O feeder lê
   o portal a cada 5 min; o Actions, a cada run. Portal inacessível não altera
-  nada; `degraded`/`outage` declarado à mão e `maintenance` são do operador.
+  nada; leitura parcial dos serviços solicitados também é inconclusiva.
+  `degraded`/`outage` declarado à mão e `maintenance` são do operador.
 - componente com `"manual": true` (Pagamentos) é do OPERADOR —
   a sonda nunca o toca. Incidente escrito à mão também nunca é tocado, e
   `outage` declarado à mão (sem incidente automático aberto) só volta a
