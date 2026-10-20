@@ -1,16 +1,16 @@
 {
-  "updated_at": "2026-10-20T00:50:00-03:00",
+  "updated_at": "2026-10-20T01:32:49-03:00",
   "components": [
     {
       "id": "painel",
       "name": "Painel de gestão (app.brsql.com.br)",
-      "status": "maintenance",
+      "status": "operational",
       "note": ""
     },
     {
       "id": "api",
       "name": "API e sincronização do aplicativo (maquininha/tablet)",
-      "status": "maintenance",
+      "status": "operational",
       "note": ""
     },
     {
@@ -43,15 +43,20 @@
     {
       "date": "2026-10-20T00:50:00-03:00",
       "title": "Manutenção programada de infraestrutura (22h às 05h)",
-      "status": "maintenance",
+      "status": "operational",
       "component": "api",
       "manual": true,
       "updates": [
         {
+          "time": "2026-10-20T01:32:49-03:00",
+          "text": "Manutenção concluída. Painel e API normais durante toda a janela, com interrupções pontuais de segundos conforme previsto."
+        },
+        {
           "time": "2026-10-20T00:50:00-03:00",
           "text": "Janela de manutenção programada das 22h às 05h: atualizações na rede e no plano de controle dos servidores e limpeza de volumes antigos. Painel e API podem ter interrupções breves, de alguns segundos, em momentos pontuais. Maquininhas e emissão fiscal seguem operando. Este aviso será atualizado ao fim da janela."
         }
-      ]
+      ],
+      "resolved": true
     },
     {
       "date": "2026-10-19T12:00:45-03:00",
