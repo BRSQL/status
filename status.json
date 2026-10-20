@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-20T14:44:56-03:00",
+  "updated_at": "2026-10-20T14:46:16-03:00",
   "components": [
     {
       "id": "painel",
@@ -10,7 +10,7 @@
     {
       "id": "api",
       "name": "API e sincronização do aplicativo (maquininha/tablet)",
-      "status": "outage",
+      "status": "operational",
       "note": ""
     },
     {
@@ -43,15 +43,20 @@
     {
       "date": "2026-10-20T14:44:56-03:00",
       "title": "Indisponibilidade — API e sincronização do aplicativo (maquininha/tablet)",
-      "status": "outage",
+      "status": "operational",
       "auto": true,
       "component": "api",
       "updates": [
         {
+          "time": "2026-10-20T14:46:16-03:00",
+          "text": "Normalizado — a sonda externa voltou a alcançar o serviço em verificações seguidas."
+        },
+        {
           "time": "2026-10-20T14:44:56-03:00",
           "text": "A sonda externa não alcançou o serviço em verificações seguidas. Investigando."
         }
-      ]
+      ],
+      "resolved": true
     },
     {
       "date": "2026-10-20T00:50:00-03:00",
