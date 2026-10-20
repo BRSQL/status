@@ -72,6 +72,10 @@ Regras comuns:
 - queda → componente vira `outage` + incidente automático (`"auto": true`);
   normalização fecha o MESMO incidente com update. Sem mudança, sem commit —
   por isso o carimbo da página é "Última mudança", não "atualizado".
+- a retenção mantém todos os incidentes ainda abertos, inclusive os manuais,
+  e preenche as vagas restantes com o histórico mais recente (limite normal
+  de 20). Se houver mais de 20 abertos, todos ficam até serem encerrados.
+  Oscilações de um componente não apagam o incidente ativo de outro.
 - **Verificação automática** (segunda linha da página): o feeder força-push a
   cada 5 min um único commit com `heartbeat.json` no ramo `heartbeat` (hora da
   verificação, saúde por alvo, leitura da SEFAZ). A página lê esse arquivo e

@@ -184,7 +184,24 @@ def fechar_incidente(estado: dict, comp: dict, texto: str) -> bool:
 
 
 def finalizar(estado: dict) -> None:
-    estado["incidents"] = estado.get("incidents", [])[:MAX_INCIDENTS]
+    # Um incidente aberto é também o registro de autoria da sonda. Perdê-lo
+    # faz a normalização parecer uma tentativa de apagar um outage manual.
+    # Reserve espaço para todos os ativos antes de limitar o histórico.
+    incidentes = estado.get("incidents", [])
+
+    def ativo(inc: dict) -> bool:
+        return (not inc.get("resolved")
+                and inc.get("status") in ("degraded", "outage", "maintenance"))
+
+    vagas = max(0, MAX_INCIDENTS - sum(ativo(inc) for inc in incidentes))
+    mantidos = []
+    for inc in incidentes:
+        if ativo(inc):
+            mantidos.append(inc)
+        elif vagas > 0:
+            mantidos.append(inc)
+            vagas -= 1
+    estado["incidents"] = mantidos
     estado["updated_at"] = agora()
 
 

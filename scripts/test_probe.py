@@ -187,6 +187,42 @@ class IncidenteTests(unittest.TestCase):
         self.assertEqual(len(estado["incidents"]), probe.MAX_INCIDENTS)
         self.assertNotEqual(estado["updated_at"], "2026-08-09T21:30:00-03:00")
 
+    def test_fiscal_flapping_does_not_remove_an_open_api_incident(self):
+        estado = estado_base()
+        comps = probe.componentes_por_id(estado)
+        comps["fiscal"].pop("manual")
+        probe.abrir_incidente(estado, comps["api"], "API indisponível")
+        incidente_api = estado["incidents"][0]
+
+        for _ in range(probe.MAX_INCIDENTS + 1):
+            probe.aplicar_sefaz(estado, comps["fiscal"], "degraded", "SVRS")
+            probe.finalizar(estado)
+            probe.aplicar_sefaz(estado, comps["fiscal"], "operational", "SVRS")
+            probe.finalizar(estado)
+
+        self.assertEqual(probe.incidentes_auto_abertos(estado, "api"), [incidente_api])
+        self.assertEqual(len(estado["incidents"]), probe.MAX_INCIDENTS)
+        self.assertTrue(probe.fechar_incidente(estado, comps["api"], "API normalizada"))
+        self.assertEqual(comps["api"]["status"], "operational")
+        self.assertTrue(incidente_api["resolved"])
+
+    def test_retention_keeps_active_manual_incidents_and_newest_history(self):
+        estado = estado_base()
+        historico = [{"title": str(i), "status": "operational"}
+                     for i in range(probe.MAX_INCIDENTS)]
+        manutencao = {"title": "Manutenção", "status": "maintenance", "manual": True}
+        estado["incidents"] = historico + [manutencao]
+        probe.finalizar(estado)
+        self.assertEqual(estado["incidents"], historico[:-1] + [manutencao])
+
+    def test_active_incidents_are_preserved_even_above_history_limit(self):
+        estado = estado_base()
+        ativos = [{"title": str(i), "status": "outage"}
+                  for i in range(probe.MAX_INCIDENTS + 1)]
+        estado["incidents"] = ativos + [{"title": "Encerrado", "resolved": True}]
+        probe.finalizar(estado)
+        self.assertEqual(estado["incidents"], ativos)
+
 
 # --- feeder.py: histerese ----------------------------------------------------------
 
