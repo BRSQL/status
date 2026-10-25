@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-25T04:31:44-03:00",
+  "updated_at": "2026-10-25T04:33:03-03:00",
   "components": [
     {
       "id": "painel",
@@ -35,7 +35,7 @@
     {
       "id": "site",
       "name": "Site e assinatura (yvera.app.br)",
-      "status": "outage",
+      "status": "operational",
       "note": ""
     }
   ],
@@ -43,15 +43,20 @@
     {
       "date": "2026-10-25T04:31:44-03:00",
       "title": "Indisponibilidade — Site e assinatura (yvera.app.br)",
-      "status": "outage",
+      "status": "operational",
       "auto": true,
       "component": "site",
       "updates": [
         {
+          "time": "2026-10-25T04:33:03-03:00",
+          "text": "Normalizado — a sonda externa voltou a alcançar o serviço em verificações seguidas."
+        },
+        {
           "time": "2026-10-25T04:31:44-03:00",
           "text": "A sonda externa não alcançou o serviço em verificações seguidas. Investigando."
         }
-      ]
+      ],
+      "resolved": true
     },
     {
       "date": "2026-10-25T04:28:44-03:00",
