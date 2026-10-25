@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-25T05:26:03-03:00",
+  "updated_at": "2026-10-25T05:31:14-03:00",
   "components": [
     {
       "id": "painel",
@@ -29,7 +29,7 @@
     {
       "id": "marketplace",
       "name": "Pedidos online e delivery (pedidos.yvera.app.br)",
-      "status": "operational",
+      "status": "outage",
       "note": ""
     },
     {
@@ -40,6 +40,19 @@
     }
   ],
   "incidents": [
+    {
+      "date": "2026-10-25T05:31:14-03:00",
+      "title": "Indisponibilidade — Pedidos online e delivery (pedidos.yvera.app.br)",
+      "status": "outage",
+      "auto": true,
+      "component": "marketplace",
+      "updates": [
+        {
+          "time": "2026-10-25T05:31:14-03:00",
+          "text": "A sonda externa não alcançou o serviço em verificações seguidas. Investigando."
+        }
+      ]
+    },
     {
       "date": "2026-10-25T05:22:44-03:00",
       "title": "Indisponibilidade — Site e assinatura (yvera.app.br)",
@@ -377,24 +390,6 @@
         },
         {
           "time": "2026-10-19T03:19:20-03:00",
-          "text": "O portal público de disponibilidade da SEFAZ indica o autorizador SVRS instável (amarelo). A falha é do lado da SEFAZ, não do sistema: a emissão continua em contingência e as notas são transmitidas quando o serviço volta."
-        }
-      ],
-      "resolved": true
-    },
-    {
-      "date": "2026-10-19T02:51:50-03:00",
-      "title": "Instabilidade na SEFAZ (SVRS) — fora da plataforma",
-      "status": "operational",
-      "auto": true,
-      "component": "fiscal",
-      "updates": [
-        {
-          "time": "2026-10-19T02:57:20-03:00",
-          "text": "Normalizado — o portal da SEFAZ voltou a indicar o autorizador SVRS operando."
-        },
-        {
-          "time": "2026-10-19T02:51:50-03:00",
           "text": "O portal público de disponibilidade da SEFAZ indica o autorizador SVRS instável (amarelo). A falha é do lado da SEFAZ, não do sistema: a emissão continua em contingência e as notas são transmitidas quando o serviço volta."
         }
       ],
