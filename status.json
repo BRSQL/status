@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-25T17:47:05-03:00",
+  "updated_at": "2026-10-25T17:55:35-03:00",
   "components": [
     {
       "id": "painel",
@@ -29,7 +29,7 @@
     {
       "id": "marketplace",
       "name": "Pedidos online e delivery (pedidos.yvera.app.br)",
-      "status": "operational",
+      "status": "outage",
       "note": ""
     },
     {
@@ -40,6 +40,19 @@
     }
   ],
   "incidents": [
+    {
+      "date": "2026-10-25T17:55:35-03:00",
+      "title": "Indisponibilidade — Pedidos online e delivery (pedidos.yvera.app.br)",
+      "status": "outage",
+      "auto": true,
+      "component": "marketplace",
+      "updates": [
+        {
+          "time": "2026-10-25T17:55:35-03:00",
+          "text": "A sonda externa não alcançou o serviço em verificações seguidas. Investigando."
+        }
+      ]
+    },
     {
       "date": "2026-10-25T17:45:05-03:00",
       "title": "Indisponibilidade — Pedidos online e delivery (pedidos.yvera.app.br)",
@@ -377,24 +390,6 @@
         },
         {
           "time": "2026-10-23T21:53:10-03:00",
-          "text": "A sonda externa não alcançou o serviço em verificações seguidas. Investigando."
-        }
-      ],
-      "resolved": true
-    },
-    {
-      "date": "2026-10-20T14:44:56-03:00",
-      "title": "Indisponibilidade — API e sincronização do aplicativo (maquininha/tablet)",
-      "status": "operational",
-      "auto": true,
-      "component": "api",
-      "updates": [
-        {
-          "time": "2026-10-20T14:46:16-03:00",
-          "text": "Normalizado — a sonda externa voltou a alcançar o serviço em verificações seguidas."
-        },
-        {
-          "time": "2026-10-20T14:44:56-03:00",
           "text": "A sonda externa não alcançou o serviço em verificações seguidas. Investigando."
         }
       ],
