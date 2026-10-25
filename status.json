@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-25T17:21:05-03:00",
+  "updated_at": "2026-10-25T17:45:05-03:00",
   "components": [
     {
       "id": "painel",
@@ -29,7 +29,7 @@
     {
       "id": "marketplace",
       "name": "Pedidos online e delivery (pedidos.yvera.app.br)",
-      "status": "operational",
+      "status": "outage",
       "note": ""
     },
     {
@@ -40,6 +40,19 @@
     }
   ],
   "incidents": [
+    {
+      "date": "2026-10-25T17:45:05-03:00",
+      "title": "Indisponibilidade — Pedidos online e delivery (pedidos.yvera.app.br)",
+      "status": "outage",
+      "auto": true,
+      "component": "marketplace",
+      "updates": [
+        {
+          "time": "2026-10-25T17:45:05-03:00",
+          "text": "A sonda externa não alcançou o serviço em verificações seguidas. Investigando."
+        }
+      ]
+    },
     {
       "date": "2026-10-25T17:19:35-03:00",
       "title": "Indisponibilidade — Site e assinatura (yvera.app.br)",
@@ -378,24 +391,6 @@
         {
           "time": "2026-10-20T14:44:56-03:00",
           "text": "A sonda externa não alcançou o serviço em verificações seguidas. Investigando."
-        }
-      ],
-      "resolved": true
-    },
-    {
-      "date": "2026-10-20T00:50:00-03:00",
-      "title": "Manutenção programada de infraestrutura (22h às 05h)",
-      "status": "operational",
-      "component": "api",
-      "manual": true,
-      "updates": [
-        {
-          "time": "2026-10-20T01:32:49-03:00",
-          "text": "Manutenção concluída. Painel e API normais durante toda a janela, com interrupções pontuais de segundos conforme previsto."
-        },
-        {
-          "time": "2026-10-20T00:50:00-03:00",
-          "text": "Janela de manutenção programada das 22h às 05h: atualizações na rede e no plano de controle dos servidores e limpeza de volumes antigos. Painel e API podem ter interrupções breves, de alguns segundos, em momentos pontuais. Maquininhas e emissão fiscal seguem operando. Este aviso será atualizado ao fim da janela."
         }
       ],
       "resolved": true
