@@ -1,0 +1,13 @@
+{
+  "checked_at": "2026-10-31T19:21:37-03:00",
+  "interval_s": 30,
+  "targets": {
+    "api": "ok",
+    "marketplace": "ok",
+    "painel": "ok",
+    "site": "ok"
+  },
+  "sefaz": {
+    "fiscal": "operational"
+  }
+}
