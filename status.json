@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-11-07T04:16:42-03:00",
+  "updated_at": "2026-11-07T04:48:57-03:00",
   "components": [
     {
       "id": "painel",
@@ -16,7 +16,7 @@
     {
       "id": "fiscal",
       "name": "Emissão fiscal — SEFAZ",
-      "status": "operational",
+      "status": "degraded",
       "note": "Acompanha o portal público de disponibilidade da SEFAZ (autorizador SVRS). Instabilidade aqui é da SEFAZ, não do sistema: o modo de contingência segue emitindo."
     },
     {
@@ -40,6 +40,19 @@
     }
   ],
   "incidents": [
+    {
+      "date": "2026-11-07T04:48:57-03:00",
+      "title": "Instabilidade na SEFAZ (SVRS) — fora da plataforma",
+      "status": "degraded",
+      "auto": true,
+      "component": "fiscal",
+      "updates": [
+        {
+          "time": "2026-11-07T04:48:57-03:00",
+          "text": "O portal público de disponibilidade da SEFAZ indica o autorizador SVRS instável (amarelo). A falha é do lado da SEFAZ, não do sistema: a emissão continua em contingência e as notas são transmitidas quando o serviço volta."
+        }
+      ]
+    },
     {
       "date": "2026-11-07T04:12:33-03:00",
       "title": "Instabilidade na SEFAZ (SVRS) — fora da plataforma",
@@ -377,24 +390,6 @@
         },
         {
           "time": "2026-10-25T19:50:35-03:00",
-          "text": "A sonda externa não alcançou o serviço em verificações seguidas. Investigando."
-        }
-      ],
-      "resolved": true
-    },
-    {
-      "date": "2026-10-25T19:47:05-03:00",
-      "title": "Indisponibilidade — Site e assinatura (yvera.app.br)",
-      "status": "operational",
-      "auto": true,
-      "component": "site",
-      "updates": [
-        {
-          "time": "2026-10-25T19:49:26-03:00",
-          "text": "Normalizado — a sonda externa voltou a alcançar o serviço em verificações seguidas."
-        },
-        {
-          "time": "2026-10-25T19:47:05-03:00",
           "text": "A sonda externa não alcançou o serviço em verificações seguidas. Investigando."
         }
       ],
