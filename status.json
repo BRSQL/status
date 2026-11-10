@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-11-10T17:51:33-03:00",
+  "updated_at": "2026-11-10T17:55:34-03:00",
   "components": [
     {
       "id": "painel",
@@ -10,7 +10,7 @@
     {
       "id": "api",
       "name": "API e sincronização do aplicativo (maquininha/tablet)",
-      "status": "operational",
+      "status": "outage",
       "note": ""
     },
     {
@@ -40,6 +40,19 @@
     }
   ],
   "incidents": [
+    {
+      "date": "2026-11-10T17:55:34-03:00",
+      "title": "Indisponibilidade — API e sincronização do aplicativo (maquininha/tablet)",
+      "status": "outage",
+      "auto": true,
+      "component": "api",
+      "updates": [
+        {
+          "time": "2026-11-10T17:55:34-03:00",
+          "text": "A sonda externa não alcançou o serviço em verificações seguidas. Investigando."
+        }
+      ]
+    },
     {
       "date": "2026-11-10T17:50:04-03:00",
       "title": "Indisponibilidade — API e sincronização do aplicativo (maquininha/tablet)",
@@ -377,24 +390,6 @@
         },
         {
           "time": "2026-11-10T13:04:01-03:00",
-          "text": "A sonda externa não alcançou o serviço em verificações seguidas. Investigando."
-        }
-      ],
-      "resolved": true
-    },
-    {
-      "date": "2026-11-10T13:03:31-03:00",
-      "title": "Indisponibilidade — Site e assinatura (yvera.app.br)",
-      "status": "operational",
-      "auto": true,
-      "component": "site",
-      "updates": [
-        {
-          "time": "2026-11-10T13:04:52-03:00",
-          "text": "Normalizado — a sonda externa voltou a alcançar o serviço em verificações seguidas."
-        },
-        {
-          "time": "2026-11-10T13:03:31-03:00",
           "text": "A sonda externa não alcançou o serviço em verificações seguidas. Investigando."
         }
       ],
