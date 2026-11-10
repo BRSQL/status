@@ -1,10 +1,10 @@
 {
-  "updated_at": "2026-11-10T18:22:04-03:00",
+  "updated_at": "2026-11-10T18:24:34-03:00",
   "components": [
     {
       "id": "painel",
       "name": "Painel de gestão (app.brsql.com.br)",
-      "status": "operational",
+      "status": "outage",
       "note": ""
     },
     {
@@ -40,6 +40,19 @@
     }
   ],
   "incidents": [
+    {
+      "date": "2026-11-10T18:24:34-03:00",
+      "title": "Indisponibilidade — Painel de gestão (app.brsql.com.br)",
+      "status": "outage",
+      "auto": true,
+      "component": "painel",
+      "updates": [
+        {
+          "time": "2026-11-10T18:24:34-03:00",
+          "text": "A sonda externa não alcançou o serviço em verificações seguidas. Investigando."
+        }
+      ]
+    },
     {
       "date": "2026-11-10T18:22:04-03:00",
       "title": "Indisponibilidade — Site e assinatura (yvera.app.br)",
@@ -372,24 +385,6 @@
         },
         {
           "time": "2026-11-10T13:42:05-03:00",
-          "text": "A sonda externa não alcançou o serviço em verificações seguidas. Investigando."
-        }
-      ],
-      "resolved": true
-    },
-    {
-      "date": "2026-11-10T13:31:36-03:00",
-      "title": "Indisponibilidade — Site e assinatura (yvera.app.br)",
-      "status": "operational",
-      "auto": true,
-      "component": "site",
-      "updates": [
-        {
-          "time": "2026-11-10T13:34:06-03:00",
-          "text": "Normalizado — a sonda externa voltou a alcançar o serviço em verificações seguidas."
-        },
-        {
-          "time": "2026-11-10T13:31:36-03:00",
           "text": "A sonda externa não alcançou o serviço em verificações seguidas. Investigando."
         }
       ],
