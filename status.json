@@ -1,16 +1,16 @@
 {
-  "updated_at": "2026-11-24T10:25:07-03:00",
+  "updated_at": "2026-11-24T17:28:04-03:00",
   "components": [
     {
       "id": "painel",
       "name": "Painel de gestão (app.brsql.com.br)",
-      "status": "operational",
+      "status": "outage",
       "note": ""
     },
     {
       "id": "api",
       "name": "API e sincronização do aplicativo (maquininha/tablet)",
-      "status": "operational",
+      "status": "outage",
       "note": ""
     },
     {
@@ -40,6 +40,32 @@
     }
   ],
   "incidents": [
+    {
+      "date": "2026-11-24T17:28:04-03:00",
+      "title": "Indisponibilidade — Painel de gestão (app.brsql.com.br)",
+      "status": "outage",
+      "auto": true,
+      "component": "painel",
+      "updates": [
+        {
+          "time": "2026-11-24T17:28:04-03:00",
+          "text": "A sonda externa não alcançou o serviço em verificações seguidas. Investigando."
+        }
+      ]
+    },
+    {
+      "date": "2026-11-24T17:28:04-03:00",
+      "title": "Indisponibilidade — API e sincronização do aplicativo (maquininha/tablet)",
+      "status": "outage",
+      "auto": true,
+      "component": "api",
+      "updates": [
+        {
+          "time": "2026-11-24T17:28:04-03:00",
+          "text": "A sonda externa não alcançou o serviço em verificações seguidas. Investigando."
+        }
+      ]
+    },
     {
       "date": "2026-11-24T10:23:48-03:00",
       "title": "Indisponibilidade — API e sincronização do aplicativo (maquininha/tablet)",
@@ -359,42 +385,6 @@
         },
         {
           "time": "2026-11-12T14:58:22-03:00",
-          "text": "A sonda externa não alcançou o serviço em verificações seguidas. Investigando."
-        }
-      ],
-      "resolved": true
-    },
-    {
-      "date": "2026-11-12T14:48:21-03:00",
-      "title": "Indisponibilidade — Pedidos online e delivery (pedidos.yvera.app.br)",
-      "status": "operational",
-      "auto": true,
-      "component": "marketplace",
-      "updates": [
-        {
-          "time": "2026-11-12T14:49:41-03:00",
-          "text": "Normalizado — a sonda externa voltou a alcançar o serviço em verificações seguidas."
-        },
-        {
-          "time": "2026-11-12T14:48:21-03:00",
-          "text": "A sonda externa não alcançou o serviço em verificações seguidas. Investigando."
-        }
-      ],
-      "resolved": true
-    },
-    {
-      "date": "2026-11-12T14:33:21-03:00",
-      "title": "Indisponibilidade — Pedidos online e delivery (pedidos.yvera.app.br)",
-      "status": "operational",
-      "auto": true,
-      "component": "marketplace",
-      "updates": [
-        {
-          "time": "2026-11-12T14:34:42-03:00",
-          "text": "Normalizado — a sonda externa voltou a alcançar o serviço em verificações seguidas."
-        },
-        {
-          "time": "2026-11-12T14:33:21-03:00",
           "text": "A sonda externa não alcançou o serviço em verificações seguidas. Investigando."
         }
       ],
